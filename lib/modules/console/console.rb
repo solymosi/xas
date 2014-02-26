@@ -7,6 +7,7 @@ module XAS
 				raise "Module already initialized." if @initialized
 				
 				Environment.events.on :environment, :ready do
+					Pry.pager = nil
 					XAS.binding.pry
 				end
 				
