@@ -4,7 +4,7 @@ module XAS::Modules::Core
 			extend ActiveSupport::Concern
 			
 			included do
-				@@validations = {}
+				@validations = {}
 			end
 			
 			def initialize(*args)

@@ -6,7 +6,7 @@ module XAS::Modules::Core
 		extend ActiveSupport::Concern
 		
 		included do
-			self.init
+			@fields = {}
 		end
 	
 		def initialize(*args)
@@ -20,21 +20,16 @@ module XAS::Modules::Core
 		
 		def set(name, value)
 			raise "Field does not exist." if self.class.fields[name].nil?
-			raise "Value must be of type #{self.class.fields[name].type.to_s}." unless value.is_a?(self.class.fields[name].type)
-			@fields[name] = self.class.fields[name].set(self, value)
+			@fields[name] = value.nil? ? nil : self.class.fields[name].set(value)
 		end
 		
 		module ClassMethods
-			def init
-				@@fields = {}
-			end
-			
-			def field(name, type, options = {})
-				@@fields[name.to_sym] = Field.new(type, options)
+			def field(name, klass, options = {})
+				@fields[name.to_sym] = klass.ancestors.include?(Field) ? klass.new(options) : Field.new(options.reverse_merge(:type => klass))
 			end
 			
 			def fields
-				@@fields
+				@fields
 			end
 		end
 	end
