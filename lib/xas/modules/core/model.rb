@@ -1,10 +1,6 @@
 module XAS::Modules::Core
 	module Model
 		extend ActiveSupport::Concern
-		
-		included do
-			@fields = {}
-		end
 	
 		def initialize(*args)
 			@fields = {}
@@ -21,12 +17,15 @@ module XAS::Modules::Core
 		end
 		
 		module ClassMethods
-			def field(name, klass, options = {})
-				@fields[name.to_sym] = klass.ancestors.include?(Field) ? klass.new(options) : Field.new(options.reverse_merge(:type => klass))
+			def fields
+				own = @fields || {}
+				superclass.include?(Model) ? superclass.fields.merge(own) : own
 			end
 			
-			def fields
-				@fields
+			def field(name, klass, options = {})
+				raise "Field already defined." if fields.include?(name.to_sym)
+				@fields ||= {}
+				@fields[name.to_sym] = klass.ancestors.include?(Field) ? klass.new(options) : Field.new(options.reverse_merge(:type => klass))
 			end
 		end
 	end
