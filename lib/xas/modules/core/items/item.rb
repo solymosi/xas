@@ -1,6 +1,7 @@
-require_relative "items/cache.rb"
-
 module XAS::Modules::Core
 	module Items
+		class Item
+			include Model
+		end
 	end
 end

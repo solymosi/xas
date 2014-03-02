@@ -1,3 +1,3 @@
-require_relative "lib/all"
+require_relative "lib/xas"
 
-XAS::Environment.initialize!
+XAS.start!

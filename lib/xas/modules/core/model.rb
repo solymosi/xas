@@ -1,6 +1,3 @@
-require_relative "model/field"
-require_relative "model/validations"
-
 module XAS::Modules::Core
 	module Model
 		extend ActiveSupport::Concern

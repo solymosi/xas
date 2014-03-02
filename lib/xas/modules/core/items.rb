@@ -1,5 +1,4 @@
 module XAS::Modules::Core
-	class Asset
-		include Model
+	module Items
 	end
 end

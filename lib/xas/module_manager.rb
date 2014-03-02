@@ -7,7 +7,6 @@ module XAS
 		end
 		
 		def load(name)
-			require_relative "modules/#{name.to_s.underscore}/#{name.to_s.underscore}"
 			@modules[name] = Modules.const_get(name.to_s.camelcase)
 			@modules[name].initialize!
 		end

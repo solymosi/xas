@@ -18,16 +18,6 @@ module XAS
 					end
 				end
 			end
-			
-			class Persistence
-				def initialize(obj)
-					@object = obj
-				end
-				
-				def get_data
-					@object
-				end
-			end
 		end
 	end
 end

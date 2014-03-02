@@ -1,7 +1,3 @@
-require_relative "model"
-require_relative "events"
-require_relative "items"
-
 module XAS
 	module Modules
 		module Core
