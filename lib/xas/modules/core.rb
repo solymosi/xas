@@ -3,10 +3,10 @@ module XAS
 		module Core
 			extend self
 			
-			attr_reader :events, :item_cache
+			attr_reader :registry, :item_cache
 			
 			def initialize!
-				@events = Events::Registry.new
+				@registry = Registry.new
 				@item_cache = Items::Cache.new
 			end
 		end
