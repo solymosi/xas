@@ -10,7 +10,7 @@ module XAS
 			event = [event].flatten
 			@subscriptions[event].each do |e|
 				e.call(event, args)
-			end
+			end unless @subscriptions[event].nil?
 		end
 		
 		def on(*event, &block)
