@@ -3,12 +3,16 @@ require "active_support/concern"
 require "active_support/dependencies"
 
 require "pry"
+require "hashr"
 
 ActiveSupport::Dependencies.autoload_paths << File.dirname(__FILE__)
-#$LOAD_PATH.unshift File.dirname(__FILE__)
 
 module XAS
+	def self.config(path)
+		Environment.add_config(path)
+	end
+	
 	def self.start!
-		Environment.initialize!
+		Environment.start!
 	end
 end
