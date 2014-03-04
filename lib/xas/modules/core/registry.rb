@@ -1,6 +1,9 @@
 module XAS::Modules::Core
 	class Registry
-		def initialize
+		attr_reader :storage
+		
+		def initialize(storage)
+			@storage = storage
 		end
 		
 		def add(event)

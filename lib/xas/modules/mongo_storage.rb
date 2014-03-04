@@ -12,10 +12,6 @@ module XAS
 				Environment.events.on :environment, :ready do
 					@client = Mongo::MongoClient.new
 					@database = @client.db "xas"
-					
-					if Environment.modules.loaded? :core
-						
-					end
 				end
 			end
 		end
