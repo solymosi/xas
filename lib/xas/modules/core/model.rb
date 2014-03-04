@@ -16,6 +16,15 @@ module XAS::Modules::Core
 			@fields[name] = value.nil? ? nil : self.class.fields[name].set(value)
 		end
 		
+		def fields
+			@fields
+		end
+		
+		def load(fields)
+			raise "Hash required." unless fields.is_a?(Hash)
+			@fields = fields
+		end
+		
 		module ClassMethods
 			def fields
 				own = @fields || {}

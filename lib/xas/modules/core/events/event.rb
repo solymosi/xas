@@ -6,6 +6,32 @@ module XAS::Modules::Core
 			field :date, DateTime
 			field :created_at, DateTime
 			
+			attr_reader :registry, :references
+			
+			def initialize(registry, id = nil)
+				@registry = registry
+				@id = id || BSON::ObjectId.new
+				@references = {}
+			end
+			
+			def create(name)
+				filter_action :create, name
+				assign name, Items::Placeholder.new(self.class.references[name])
+			end
+			
+			def assign(name, placeholder)
+				raise "Reference does not exist." unless self.class.references.include?(name)
+				raise "Assigned reference must be a Placeholder object." unless placeholder.is_a?(Items::Placeholder)
+				@references[name] = placeholder
+			end
+			
+			protected
+				def filter_action(action, reference, field = nil)
+					a = self.class.actions[reference]
+					raise "Reference does not exist." if a.nil?
+					raise "Action '#{action}' not defined for '#{reference}'#{field.nil? ? "" : " field '#{field}'"}" unless a[:action] == action && ([nil, :all].include?(a[:fields]) || a[:fields].include?(field))
+				end
+			
 			class << self
 				def references
 					own = @references || {}

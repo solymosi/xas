@@ -6,8 +6,10 @@ module XAS
 			attr_reader :registry, :item_cache
 			
 			def initialize!
-				@registry = Registry.new
-				@item_cache = Items::Cache.new
+				Environment.events.on :environment, :ready do
+					@registry = Registry.new(XAS::Modules::MongoStorage::EventStorage.new)
+					@item_cache = Items::Cache.new
+				end
 			end
 		end
 	end
