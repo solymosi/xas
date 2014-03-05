@@ -1,13 +1,11 @@
 module XAS::Modules::Core
 	module Items
 		class Placeholder
-			attr_reader :registry, :id, :type
+			attr_reader :id, :type
 			
-			def initialize(registry, type, id = nil)
-				@registry = registry
+			def initialize(type, id = nil)
 				raise "Type must be a subclass of Item." unless type.ancestors.include?(Item)
-				@type = type
-				@id = id || registry.uuid
+				@type, @id = type, id
 			end
 			
 			def ==(other)

@@ -1,20 +1,21 @@
-set :modules, [:core, :console, :mongo_storage]
+set :modules, [:core, :console, :mongo_backend]
 
-group :storage do
+group :backend do
 	group :default do
-		set :module, :mongo_storage
-		
+		set :module, :mongo_backend
 	end
 end
 
 group :core do
 	group :registry do
-		set :storage, nil
+		set :backend, :default
+		set :storage, :registry_storage
 		set :collection, "registry"
 	end
 	
 	group :item_cache do
-		set :storage, :default
+		set :backend, :default
+		set :storage, :item_cache_storage
 		set :collection, "item_cache"
 	end
 end

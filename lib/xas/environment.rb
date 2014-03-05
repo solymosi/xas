@@ -5,7 +5,7 @@ module XAS
 		attr_reader :config
 		attr_reader :events
 		attr_reader :modules
-		attr_reader :storage
+		attr_reader :backend
 		
 		def add_config(path)
 			@config ||= Configuration.new
@@ -15,7 +15,7 @@ module XAS
 		def start!
 			@events = EventManager.new
 			@modules = ModuleManager.new
-			@storage = StorageManager.new
+			@backend = BackendManager.new
 		
 			events.trigger [:environment, :start]
 			
@@ -25,8 +25,8 @@ module XAS
 			
 			events.trigger [:environment, :modules_loaded]
 			
-			config.get(:storage).keys.each do |item|
-				storage.register item, config.get(:storage, item)
+			config.get(:backend).keys.each do |item|
+				backend.register item, config.get(:backend, item)
 			end
 			
 			events.trigger [:environment, :ready]

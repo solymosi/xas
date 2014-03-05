@@ -6,17 +6,16 @@ module XAS::Modules::Core
 			field :date, DateTime
 			field :created_at, DateTime
 			
-			attr_reader :registry, :references
+			attr_reader :references
 			
-			def initialize(registry, id = nil)
-				@registry = registry
-				@id = id || registry.uuid
+			def initialize(id = nil)
+				@id = id
 				@references = {}
 			end
 			
 			def create(name)
 				filter_action :create, name
-				assign name, Items::Placeholder.new(registry, self.class.references[name])
+				assign name, Items::Placeholder.new(self.class.references[name])
 			end
 			
 			def assign(name, placeholder)

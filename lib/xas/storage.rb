@@ -1,17 +1,9 @@
 module XAS
 	class Storage
-		attr_reader :config
+		attr_reader :backend, :config
 		
-		def initialize(config)
-			@config = config
-		end
-		
-		def connect
-			raise "Storage base class does not support connect."
-		end
-		
-		def uuid
-			SecureRandom.uuid
+		def initialize(backend, config = nil)
+			@backend, @config = backend, config
 		end
 	end
 end

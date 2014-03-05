@@ -10,8 +10,8 @@ module XAS
 				set_config_defaults
 				
 				Environment.events.on :environment, :ready do
-					@registry = Registry.new(Environment.storage.get(config.get(:registry, :storage)))
-					@item_cache = Items::Cache.new(Environment.storage.get(config.get(:item_cache, :storage)))
+					@registry = Registry.new(get_storage(:registry))
+					@item_cache = Items::Cache.new(get_storage(:item_cache))
 				end
 			end
 			
@@ -19,15 +19,21 @@ module XAS
 				def set_config_defaults
 					@config.instance_eval do
 						group :registry do
-							default :storage, :default
-							default :collection, "registry"
+							set :backend, :default
+							set :storage, :registry_storage
+							set :collection, "registry"
 						end
 						
 						group :item_cache do
-							default :storage, :default
-							default :collection, "item_cache"
+							set :backend, :default
+							set :storage, :item_cache_storage
+							set :collection, "item_cache"
 						end
 					end
+				end
+				
+				def get_storage(type)
+					Environment.backend.get(config.get(type, :backend)).get_storage(config.get(type, :storage), config.get(type))
 				end
 		end
 	end

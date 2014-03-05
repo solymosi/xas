@@ -2,14 +2,14 @@ require "mongo"
 
 module XAS
 	module Modules
-		module MongoStorage
+		module MongoBackend
 			extend self
 			
 			def initialize!(config = nil)
 			end
 			
-			def get_storage(config)
-				Storage.new(config)
+			def get_backend(config)
+				Backend.new(config)
 			end
 		end
 	end
