@@ -17,6 +17,10 @@ module XAS::Modules::MongoStorage
 			!@client.nil?
 		end
 		
+		def uuid
+			BSON::ObjectId.new
+		end
+		
 		protected
 			def set_config_defaults
 				@config.instance_eval do

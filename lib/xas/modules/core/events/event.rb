@@ -10,13 +10,13 @@ module XAS::Modules::Core
 			
 			def initialize(registry, id = nil)
 				@registry = registry
-				@id = id || BSON::ObjectId.new
+				@id = id || registry.uuid
 				@references = {}
 			end
 			
 			def create(name)
 				filter_action :create, name
-				assign name, Items::Placeholder.new(self.class.references[name])
+				assign name, Items::Placeholder.new(registry, self.class.references[name])
 			end
 			
 			def assign(name, placeholder)

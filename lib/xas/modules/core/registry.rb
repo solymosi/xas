@@ -9,5 +9,9 @@ module XAS::Modules::Core
 		def add(event)
 			
 		end
+		
+		def uuid
+			storage.uuid
+		end
 	end
 end
