@@ -8,6 +8,13 @@ module XAS
 				
 				Environment.events.on :environment, :ready do
 					Pry.pager = nil
+					
+					if Environment.modules.loaded?(:mongo_storage)
+						MongoStorage::Storage.send :define_method, :pretty_print do |q|
+							q.text "#<#{self.class.name} #{self.config.to_hash.inspect}>"
+						end
+					end
+					
 					XAS.binding.pry
 				end
 				
