@@ -13,9 +13,5 @@ module XAS
 		def get_storage(name, config = nil)
 			raise "Backend base class has no Storage classes."
 		end
-		
-		def uuid
-			SecureRandom.uuid
-		end
 	end
 end

@@ -5,5 +5,9 @@ module XAS
 		def initialize(backend, config = nil)
 			@backend, @config = backend, config
 		end
+		
+		def new_id
+			SecureRandom.uuid
+		end
 	end
 end

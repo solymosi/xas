@@ -10,8 +10,8 @@ module XAS::Modules::Core
 			
 		end
 		
-		def uuid
-			storage.uuid
+		def new_id
+			storage.new_id
 		end
 	end
 end
