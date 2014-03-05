@@ -3,14 +3,29 @@ module XAS::Modules::Core
 		class Event
 			include Model
 			
-			field :date, DateTime
-			field :created_at, DateTime
+			field :date, Time
+			field :created_at, Time
 			
-			attr_reader :references
+			attr_reader :id, :references
 			
 			def initialize(id = nil)
 				@id = id
 				@references = {}
+				set :created_at, Time.now
+			end
+			
+			def saved?
+				@id != nil
+			end
+			
+			def set(*args)
+				raise "Event already saved and can no longer be changed." if saved?
+				super
+			end
+			
+			def load(*args)
+				raise "Event already saved and can no longer be changed." if saved?
+				super
 			end
 			
 			def create(name)
@@ -29,6 +44,10 @@ module XAS::Modules::Core
 					a = self.class.actions[reference]
 					raise "Reference does not exist." if a.nil?
 					raise "Action '#{action}' not defined for '#{reference}'#{field.nil? ? "" : " field '#{field}'"}" unless a[:action] == action && ([nil, :all].include?(a[:fields]) || a[:fields].include?(field))
+				end
+				
+				def set_id(id)
+					@id = id
 				end
 			
 			class << self
@@ -94,7 +113,7 @@ module XAS::Modules::Core
 					performs :remove, name
 				end
 				
-				private
+				protected
 					def merge_fields(prev, current)
 						return :all if prev == :all || current == :all
 						return :exists if prev == :exists && current == :exists

@@ -6,7 +6,18 @@ module XAS::Modules::Core
 			@storage = storage
 		end
 		
-		def add(event)
+		def save(obj)
+			raise "#{obj.class.name} already saved." if obj.saved?
+			if obj.is_a?(Events::Event)
+				obj.references.each do |name, placeholder|
+					save(placeholder)
+				end
+			end
+			obj.send :set_id, new_id
+			storage.save obj
+		end
+		
+		def get_affected_events(event)
 			
 		end
 		

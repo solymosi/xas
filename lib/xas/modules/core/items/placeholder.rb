@@ -8,11 +8,20 @@ module XAS::Modules::Core
 				@type, @id = type, id
 			end
 			
+			def saved?
+				@id != nil
+			end
+			
 			def ==(other)
 				self.id == other.id && self.type == other.type
 			end
 			
 			alias_method :eql?, :==
+			
+			protected
+				def set_id(id)
+					@id = id
+				end
 		end
 	end
 end
