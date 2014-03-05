@@ -5,14 +5,11 @@ module XAS
 		module MongoStorage
 			extend self
 			
-			attr_reader :client
-			attr_reader :database
+			def initialize!(config = nil)
+			end
 			
-			def initialize!
-				Environment.events.on :environment, :ready do
-					@client = Mongo::MongoClient.new
-					@database = @client.db "xas"
-				end
+			def get_storage(config)
+				Storage.new(config)
 			end
 		end
 	end

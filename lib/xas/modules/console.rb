@@ -3,7 +3,7 @@ module XAS
 		module Console
 			extend self
 			
-			def initialize!
+			def initialize!(config = nil)
 				raise "Module already initialized." if @initialized
 				
 				Environment.events.on :environment, :ready do
