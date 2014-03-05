@@ -1,23 +1,20 @@
 module XAS::Modules::Core
 	module Model
 		extend ActiveSupport::Concern
-	
-		def initialize(*args)
-			@fields = {}
-			super
-		end
 		
 		def get(name)
+			return nil if @fields.nil?
 			@fields[name]
 		end
 		
 		def set(name, value)
 			raise "Field does not exist." if self.class.fields[name].nil?
+			@fields ||= {}
 			@fields[name] = value.nil? ? nil : self.class.fields[name].set(value)
 		end
 		
 		def fields
-			@fields
+			@fields || {}
 		end
 		
 		def load(fields)
