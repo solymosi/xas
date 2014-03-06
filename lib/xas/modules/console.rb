@@ -2,11 +2,12 @@ module XAS
 	module Modules
 		module Console
 			extend self
+			include Eventful
 			
 			def initialize!(config = nil)
 				raise "Module already initialized." if @initialized
 				
-				Environment.events.on :environment, :ready do
+				_event.on "environment.ready":environment, :ready do
 					Pry.pager = nil
 					
 					Backend.send :define_method, :pretty_print do |q|
