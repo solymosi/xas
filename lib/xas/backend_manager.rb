@@ -9,7 +9,7 @@ module XAS
 		def register(name, config)
 			raise "Backend module not specified." if config.nil? || config.get(:module).nil?
 			raise "Backend already registered." unless storages[name].nil?
-			@storages[name] = Modules.const_get(config.get(:module).to_s.camelcase).get_backend(config)
+			@storages[name] = Environment.modules.get(config.get(:module)).get_backend(config)
 		end
 		
 		def get(name)

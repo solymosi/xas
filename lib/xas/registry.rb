@@ -1,4 +1,4 @@
-module XAS::Modules::Core
+module XAS
 	class Registry
 		attr_reader :storage
 		
@@ -8,7 +8,7 @@ module XAS::Modules::Core
 		
 		def save(obj)
 			raise "#{obj.class.name} already saved." if obj.saved?
-			if obj.is_a?(Events::Event)
+			if obj.is_a?(Event)
 				obj.references.each do |name, placeholder|
 					save(placeholder) unless placeholder.saved?
 				end

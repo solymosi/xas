@@ -1,5 +1,5 @@
 module XAS::Modules::MongoBackend
-	class RegistryStorage < XAS::Storage
+	class RegistryStorage < Storage
 		def initialize(backend, config)
 			super
 			set_config_defaults
@@ -10,7 +10,7 @@ module XAS::Modules::MongoBackend
 		end
 		
 		def save(obj)
-			raise "Only Event and Placeholder objects can be saved." unless ([XAS::Modules::Core::Events::Event, XAS::Modules::Core::Items::Placeholder] & obj.class.ancestors).any?
+			raise "Only Event and Placeholder objects can be saved." unless ([XAS::Event, XAS::Placeholder] & obj.class.ancestors).any?
 			collection.insert build_data(obj)
 		end
 		
@@ -26,8 +26,8 @@ module XAS::Modules::MongoBackend
 			end
 			
 			def build_data(obj)
-				return build_event_data(obj) if obj.is_a?(XAS::Modules::Core::Events::Event)
-				return build_placeholder_data(obj) if obj.is_a?(XAS::Modules::Core::Items::Placeholder)
+				return build_event_data(obj) if obj.is_a?(XAS::Event)
+				return build_placeholder_data(obj) if obj.is_a?(XAS::Placeholder)
 			end
 			
 			def build_event_data(event)

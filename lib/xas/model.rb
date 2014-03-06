@@ -1,4 +1,4 @@
-module XAS::Modules::Core
+module XAS
 	module Model
 		extend ActiveSupport::Concern
 		

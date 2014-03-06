@@ -17,8 +17,8 @@ module XAS::Modules::MongoBackend
 		end
 		
 		def get_storage(name, config = nil)
-			raise "Storage '#{name.to_s}' is not supported." unless self.respond_to?("get_#{name.to_s}")
-			self.send "get_#{name.to_s}", config
+			raise "Storage '#{name.to_s}' is not supported." unless self.respond_to?("get_#{name.to_s}_storage")
+			self.send "get_#{name.to_s}_storage", config
 		end
 		
 		def get_registry_storage(config)

@@ -9,7 +9,7 @@ ActiveSupport::Dependencies.autoload_paths << File.dirname(__FILE__)
 
 module XAS
 	def self.config(path)
-		Environment.add_config(path)
+		Environment.config.load(path)
 	end
 	
 	def self.start!
