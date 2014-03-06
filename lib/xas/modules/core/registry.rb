@@ -10,7 +10,7 @@ module XAS::Modules::Core
 			raise "#{obj.class.name} already saved." if obj.saved?
 			if obj.is_a?(Events::Event)
 				obj.references.each do |name, placeholder|
-					save(placeholder)
+					save(placeholder) unless placeholder.saved?
 				end
 			end
 			obj.send :set_id, new_id
