@@ -8,10 +8,9 @@ module XAS
 		
 		def trigger(event, *args)
 			event = parse_event_argument([event].flatten)
-			@subscriptions[event].each do |e|
+			event.map.with_index { |e, i| event[0..i] }.unshift([]).reverse.map { |i| @subscriptions[i] }.flatten.compact.each do |e|
 				e.call(event, *args)
-			end unless @subscriptions[event].nil?
-			trigger(event[0...-1], *args) if event.any?
+			end
 		end
 		
 		def on(*event, &block)
@@ -27,7 +26,7 @@ module XAS
 		
 		protected
 			def parse_event_argument(event)
-				event = [] if event.nil?
+				event = [] if event.size == 1 && event.first.nil?
 				event = event.first.split(".").map(&:to_sym) if event.size == 1 && event.first.is_a?(String)
 				event = event.first if event.size == 1 && event.first.is_a?(Array)
 				raise "Event identifier segments must be symbols." if event.any? { |i| !i.is_a?(Symbol) }
