@@ -6,16 +6,14 @@ module XAS
 			@storage = storage
 		end
 		
-		def save(obj)
-			raise "#{obj.class.name} already saved." if obj.saved?
-			raise "#{obj.class.name} has the following errors: #{obj.errors.inspect}" if obj.respond_to?(:valid?) && !obj.valid?
-			if obj.is_a?(Event)
-				obj.references.each do |name, placeholder|
-					save(placeholder) unless placeholder.saved?
-				end
+		def save(event)
+			raise "Event object required." unless event.is_a?(Event)
+			raise "Event already saved." if event.saved?
+			raise "Event has the following errors: #{event.errors.inspect}" unless event.valid?
+			event.references.each do |name, placeholder|
+				save_object(placeholder) unless placeholder.saved?
 			end
-			obj.send :set_id, new_id
-			storage.save obj
+			save_object event
 		end
 		
 		def get_affected_events(event)
@@ -25,5 +23,11 @@ module XAS
 		def new_id
 			storage.new_id
 		end
+		
+		protected
+			def save_object(obj)
+				obj.send :set_id, new_id
+				storage.save obj
+			end
 	end
 end
