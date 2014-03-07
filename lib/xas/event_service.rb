@@ -15,7 +15,7 @@ module XAS
 		
 		def on(*event, &block)
 			event = parse_event_argument(event)
-			@subscriptions[event] = [] if @subscriptions[event].nil?
+			@subscriptions[event] ||= []
 			@subscriptions[event] << block
 			@subscriptions[event]
 		end

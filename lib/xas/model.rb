@@ -1,6 +1,7 @@
 module XAS
 	module Model
 		extend ActiveSupport::Concern
+		include Validation
 		
 		def get(name)
 			return nil if @fields.nil?
