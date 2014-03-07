@@ -7,6 +7,8 @@ module XAS::Modules::Core
 			changes :currency, :name
 			
 			field :new_name, String
+			
+			validate :new_name, :presence
 		end
 	end
 end
