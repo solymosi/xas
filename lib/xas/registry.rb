@@ -8,6 +8,7 @@ module XAS
 		
 		def save(obj)
 			raise "#{obj.class.name} already saved." if obj.saved?
+			raise "#{obj.class.name} has the following errors: #{obj.errors.inspect}" if obj.respond_to?(:valid?) && !obj.valid?
 			if obj.is_a?(Event)
 				obj.references.each do |name, placeholder|
 					save(placeholder) unless placeholder.saved?
