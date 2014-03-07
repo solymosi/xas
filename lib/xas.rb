@@ -3,7 +3,6 @@ require "active_support/concern"
 require "active_support/dependencies"
 
 require "pry"
-require "hashr"
 
 ActiveSupport::Dependencies.autoload_paths << File.dirname(__FILE__)
 
