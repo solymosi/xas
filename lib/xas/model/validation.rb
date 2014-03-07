@@ -7,12 +7,18 @@ module XAS
 				@errors || {}
 			end
 			
-			def add_error(field, error)
-				raise "Error must be a symbol." unless error.is_a?(Symbol)
+			def add_error(field, error, options = {})
+				raise "Error must be a symbol or a hash." unless error.is_a?(Symbol) || error.is_a?(Hash)
 				raise "Field does not exist." if !field.nil? && self.class.fields[field].nil?
+				error = options.merge(:error => error) if error.is_a?(Symbol)
+				raise "Error code must be specified." if error[:error].nil?
 				@errors ||= {}
 				@errors[field] ||= []
 				@errors[field] << error
+			end
+			
+			def add_model_error(error, options = {})
+				add_error nil, error, options
 			end
 			
 			def valid?
@@ -23,11 +29,12 @@ module XAS
 						validator.validate self if field.nil?
 					end unless validators.nil?
 				end
+				yield if block_given?
 				!errors.any?
 			end
 			
 			module ClassMethods
-				def validate(*args)
+				def validate(*args, &block)
 					options = args.extract_options!
 					raise "Invalid parameters." unless (1..2).include?(args.size)
 					validator, field = args.last, (args.many? ? args.first : nil)

@@ -29,24 +29,38 @@ module XAS
 		
 		def create(name)
 			filter_action :create, name
-			assign name, Placeholder.new(self.class.references[name])
+			set_reference name, Placeholder.new(self.class.references[name][:type])
 		end
 		
-		def assign(name, placeholder)
-			raise "Reference does not exist." unless self.class.references.include?(name)
-			raise "Assigned reference must be a Placeholder object." unless placeholder.is_a?(Placeholder)
-			@references[name] = placeholder
+		def assign(name, ref)
+			raise "Reference must already be saved." unless ref.saved?
+			set_reference name, ref
+		end
+		
+		def valid?
+			super do
+				self.class.references.each do |name, params|
+					add_model_error :error => :missing_reference, :reference => name if params[:required] && @references[name].nil?
+				end
+				yield if block_given?
+			end
 		end
 		
 		protected
 			def filter_action(action, reference, field = nil)
 				a = self.class.actions[reference]
 				raise "Reference does not exist." if a.nil?
-				raise "Action '#{action}' not defined for '#{reference}'#{field.nil? ? "" : " field '#{field}'"}" unless a[:action] == action && ([nil, :all].include?(a[:fields]) || a[:fields].include?(field))
+				raise "Action '#{action}' not valid for '#{reference}'#{field.nil? ? "" : " field '#{field}'"}" unless a[:action] == action && ([nil, :all].include?(a[:fields]) || a[:fields].include?(field))
 			end
 			
 			def set_id(id)
 				@id = id
+			end
+			
+			def set_reference(name, ref)
+				raise "Reference does not exist." unless self.class.references.include?(name)
+				raise "Reference must be a placeholder." unless ref.is_a?(Placeholder)
+				@references[name] = ref
 			end
 		
 		class << self
@@ -55,11 +69,11 @@ module XAS
 				superclass.is_a?(Event) ? superclass.references.merge(own) : own
 			end
 			
-			def reference(name, type)
+			def reference(name, type, options = {})
 				@references ||= {}
 				raise "Reference already defined." if references.include?(name)
 				raise "Reference type must be a subclass of Item." unless type.ancestors.include?(Item)
-				@references[name] = type
+				@references[name] = options.merge(:type => type).reverse_merge(:required => true)
 			end
 			
 			# Dependencies

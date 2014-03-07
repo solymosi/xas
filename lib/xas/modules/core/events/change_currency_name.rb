@@ -1,6 +1,6 @@
 module XAS::Modules::Core
 	module Events
-		class ChangeCurrencyName < Event
+		class ChangeCurrencyName < XAS::Event
 			reference :currency, Items::Currency
 			
 			requires :currency

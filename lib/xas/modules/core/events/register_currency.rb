@@ -1,6 +1,6 @@
 module XAS::Modules::Core
 	module Events
-		class RegisterCurrency < Event
+		class RegisterCurrency < XAS::Event
 			reference :currency, Items::Currency
 			
 			creates :currency
