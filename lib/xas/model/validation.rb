@@ -51,7 +51,8 @@ module XAS
 				end
 				
 				def validations
-					@validations || {}
+					own = @validations || {}
+					superclass.respond_to?(:validations) ? superclass.validations.merge(own) : own
 				end
 			end
 		end
