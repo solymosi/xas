@@ -5,13 +5,19 @@ module XAS::Modules::MongoBackend
 			set_config_defaults
 		end
 		
-		def collection
-			backend.database[config.get(:collection)]
+		def event_collection
+			backend.database[config.get(:event_collection)]
+		end
+		
+		def placeholder_collection
+			backend.database[config.get(:placeholder_collection)]
 		end
 		
 		def save(obj)
-			raise "Only Event and Placeholder objects can be saved." unless ([XAS::Event, XAS::Placeholder] & obj.class.ancestors).any?
-			collection.insert build_data(obj)
+			raise "Only events and placeholders can be saved." unless ([XAS::Event, XAS::Placeholder] & obj.class.ancestors).any?
+			event_collection.insert build_event_data(obj) if obj.is_a?(XAS::Event)
+			placeholder_collection.insert build_placeholder_data(obj) if obj.is_a?(XAS::Placeholder)
+			obj
 		end
 		
 		def new_id
@@ -21,13 +27,9 @@ module XAS::Modules::MongoBackend
 		protected
 			def set_config_defaults
 				@config.instance_eval do
-					default :collection, "registry"
+					default :event_collection, "events"
+					default :placeholder_collection, "placeholders"
 				end
-			end
-			
-			def build_data(obj)
-				return build_event_data(obj) if obj.is_a?(XAS::Event)
-				return build_placeholder_data(obj) if obj.is_a?(XAS::Placeholder)
 			end
 			
 			def build_event_data(event)
