@@ -36,12 +36,15 @@ module XAS
 			module ClassMethods
 				def validate(*args, &block)
 					options = args.extract_options!
+					args << BlockValidator.new(options, &block) if block_given?
 					raise "Invalid parameters." unless (1..2).include?(args.size)
 					validator, field = args.last, (args.many? ? args.first : nil)
 					raise "Field does not exist." if !field.nil? && fields[field].nil?
-					validator = Validation.const_get("#{validator.to_s}_validator".camelcase).new(options)
-					raise "Field validator required." unless field.nil? || validator.is_a?(FieldValidator)
-					raise "Model validator required." unless !field.nil? || validator.is_a?(ModelValidator)
+					validator = Validation.const_get("#{validator.to_s}_validator".camelcase).new(options) unless validator.is_a?(BlockValidator)
+					unless validator.is_a?(BlockValidator)
+						raise "Field validator required." if !field.nil? && !validator.is_a?(FieldValidator)
+						raise "Model validator required." if field.nil? && !validator.is_a?(ModelValidator)
+					end
 					@validations ||= {}
 					@validations[field] ||= []
 					@validations[field] << validator
