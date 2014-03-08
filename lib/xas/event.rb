@@ -3,7 +3,10 @@ module XAS
 		include Model
 		
 		field :date, Time
+		validate :date, :presence
+		
 		field :created_at, Time
+		validate :created_at, :presence
 		
 		attr_reader :id, :references
 		
@@ -18,12 +21,12 @@ module XAS
 		end
 		
 		def set(*args)
-			raise "Event already saved and can no longer be changed." if saved?
+			raise "Event is already saved and can no longer be changed." if saved?
 			super
 		end
 		
 		def load(*args)
-			raise "Event already saved and can no longer be changed." if saved?
+			raise "Event is already saved and can no longer be changed." if saved?
 			super
 		end
 		
