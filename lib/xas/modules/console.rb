@@ -1,3 +1,5 @@
+require "pry"
+
 module XAS
 	module Modules
 		module Console
