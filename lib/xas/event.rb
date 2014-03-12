@@ -16,18 +16,12 @@ module XAS
 			set :created_at, Time.now
 		end
 		
+		def apply(*args)
+			raise "Base event cannot be applied on an item cache."
+		end
+		
 		def saved?
 			@id != nil
-		end
-		
-		def set(*args)
-			raise "Event is already saved and can no longer be changed." if saved?
-			super
-		end
-		
-		def load(*args)
-			raise "Event is already saved and can no longer be changed." if saved?
-			super
 		end
 		
 		def create(name)
@@ -47,6 +41,10 @@ module XAS
 				end
 				yield if block_given?
 			end
+		end
+		
+		def ==(other)
+			self.id == other.id && self.class == other.class
 		end
 		
 		protected

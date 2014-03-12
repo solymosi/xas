@@ -17,7 +17,15 @@ module XAS::Modules::MongoBackend
 			cursor = event_collection.find(conditions).sort(sort)
 			cursor = cursor.limit(limit) unless limit.nil?
 			cursor = cursor.skip(skip) unless skip.nil?
-			cursor
+			Enumerator.new do |y|
+				cursor.each do |e|
+					y.yield hydrate_event(e)
+				end
+			end
+		end
+		
+		def new_id
+			backend.uuid
 		end
 		
 		protected
@@ -51,21 +59,27 @@ module XAS::Modules::MongoBackend
 			end
 			
 			def hydrate_event(data)
-				event = data["type"].constantize.new(data["id"]).symbolize_keys
+				data.deep_symbolize_keys!
+				event = data[:type].constantize.new data[:_id]
 				data[:fields].each do |name, value|
 					event.set name, value
 				end
 				data[:references].each do |name, id|
-					event.references[name] = Placeholder.new event.class.references[name][:type], id
+					event.references[name] = XAS::Placeholder.new event.class.references[name][:type], id
 				end
-				data
+				event
 			end
 			
 			def build_placeholder_data(ph)
 				{
 					:_id => ph.id,
-					:type => ph.class.name
+					:type => ph.type.name
 				}
+			end
+			
+			def hydrate_placeholder(data)
+				data.deep_symbolize_keys!
+				XAS::Placeholder.new data[:type].constantize, data[:_id]
 			end
 	end
 end
