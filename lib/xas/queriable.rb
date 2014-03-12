@@ -6,6 +6,14 @@ module XAS
 			Query.new self
 		end
 		
+		def method_missing(method, *args, &block)
+			respond_to?(method) ? query.send(method, *args, &block) : super
+		end
+		
+		def respond_to?(method)
+			super || query.respond_to?(method)
+		end
+		
 		module ClassMethods
 			def scopes
 				own = @scopes || {}

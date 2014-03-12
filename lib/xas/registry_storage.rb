@@ -8,18 +8,5 @@ module XAS
 			save_placeholder(obj) if obj.is_a?(Placeholder)
 			obj
 		end
-		
-		def new_id
-			backend.uuid
-		end
-		
-		def method_missing(method, *args, &block)
-			return query.send method, *args, &block if query.respond_to? method
-			super
-		end
-		
-		def respond_to?(method)
-			super || query.respond_to?(method)
-		end
 	end
 end
