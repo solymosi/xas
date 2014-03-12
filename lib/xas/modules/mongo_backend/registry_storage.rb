@@ -61,6 +61,8 @@ module XAS::Modules::MongoBackend
 			def hydrate_event(data)
 				data.deep_symbolize_keys!
 				event = data[:type].constantize.new data[:_id]
+				event.set :date, data[:date]
+				event.set :created_at, data[:created_at]
 				data[:fields].each do |name, value|
 					event.set name, value
 				end

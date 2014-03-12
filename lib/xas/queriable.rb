@@ -30,7 +30,6 @@ module XAS
 		
 		class Query
 			attr_reader :storage, :conditions, :sorts, :limits, :skips
-			delegate :to_a, :each, :count, :to => :execute
 			
 			def initialize(storage)
 				@storage = storage
@@ -73,11 +72,11 @@ module XAS
 			
 			def method_missing(method, *args, &block)
 				return instance_exec(*args, &storage.class.scopes[method]) unless storage.class.scopes[method].nil?
-				super
+				respond_to?(method) ? execute.send(method, *args, &block) : super
 			end
 			
 			def respond_to?(method)
-				super || !storage.class.scopes[method].nil?
+				super || !storage.class.scopes[method].nil? || Enumerable.instance_methods.include?(method)
 			end
 		end
 	end
