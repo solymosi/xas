@@ -1,5 +1,5 @@
 module XAS::Modules::MongoBackend
-	class RegistryStorage < Storage
+	class RegistryStorage < XAS::RegistryStorage
 		def initialize(backend, config)
 			super
 			set_config_defaults
@@ -13,15 +13,11 @@ module XAS::Modules::MongoBackend
 			backend.database[config.get(:placeholder_collection)]
 		end
 		
-		def save(obj)
-			raise "Only events and placeholders can be saved." unless ([XAS::Event, XAS::Placeholder] & obj.class.ancestors).any?
-			event_collection.insert build_event_data(obj) if obj.is_a?(XAS::Event)
-			placeholder_collection.insert build_placeholder_data(obj) if obj.is_a?(XAS::Placeholder)
-			obj
-		end
-		
-		def new_id
-			backend.uuid
+		def find(conditions = {}, sort = {}, limit = nil, skip = nil)
+			cursor = event_collection.find(conditions).sort(sort)
+			cursor = cursor.limit(limit) unless limit.nil?
+			cursor = cursor.skip(skip) unless skip.nil?
+			cursor
 		end
 		
 		protected
@@ -32,10 +28,17 @@ module XAS::Modules::MongoBackend
 				end
 			end
 			
+			def save_event(obj)
+				event_collection.insert build_event_data(obj)
+			end
+			
+			def save_placeholder(obj)
+				placeholder_collection.insert build_placeholder_data(obj)
+			end
+			
 			def build_event_data(event)
 				{
 					:_id => event.id,
-					:kind => "event",
 					:type => event.class.name,
 					:date => event.get(:date),
 					:created_at => event.get(:created_at),
@@ -47,10 +50,20 @@ module XAS::Modules::MongoBackend
 				}
 			end
 			
+			def hydrate_event(data)
+				event = data["type"].constantize.new(data["id"]).symbolize_keys
+				data[:fields].each do |name, value|
+					event.set name, value
+				end
+				data[:references].each do |name, id|
+					event.references[name] = Placeholder.new event.class.references[name][:type], id
+				end
+				data
+			end
+			
 			def build_placeholder_data(ph)
 				{
 					:_id => ph.id,
-					:kind => "placeholder",
 					:type => ph.class.name
 				}
 			end

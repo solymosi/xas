@@ -6,6 +6,14 @@ module XAS
 			@backend, @config = backend, config
 		end
 		
+		def save(*args)
+			raise "Save is not supported in base storage."
+		end
+		
+		def find(*args)
+			raise "Find is not supported in base storage."
+		end
+		
 		def new_id
 			SecureRandom.uuid
 		end
