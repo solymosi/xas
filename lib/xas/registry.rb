@@ -16,12 +16,32 @@ module XAS
 			save_object event
 		end
 		
+		def events
+			query
+		end
+		
+		def build_item_cache(cache)
+			cache = Environment.item_cache if cache.nil?
+			events.each do |e|
+				e.apply cache
+			end
+		end
+		
 		def get_affected_events(event)
 			
 		end
 		
 		def new_id
 			storage.new_id
+		end
+		
+		def method_missing(method, *args, &block)
+			return storage.send method, *args, &block if storage.respond_to?(method)
+			super
+		end
+		
+		def respond_to?(method)
+			super || storage.respond_to?(method)
 		end
 		
 		protected

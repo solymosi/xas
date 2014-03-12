@@ -27,7 +27,7 @@ module XAS
 			def initialize(storage)
 				@storage = storage
 				@conditions = {}
-				@sort = {}
+				@sorts = {}
 				self
 			end
 			
@@ -41,25 +41,25 @@ module XAS
 			end
 			
 			def sort(param)
-				sort.merge! param
+				sorts.merge! param
 				self
 			end
 			
 			def limit(count)
-				@limit = count
+				@limits = count
 				self
 			end
 			
 			def skip(count)
-				@skip = count
+				@skips = count
 				self
 			end
 			
 			def unscoped
 				conditions.clear
-				sort.clear
-				@limit = nil
-				@skip = nil
+				sorts.clear
+				@limits = nil
+				@skips = nil
 				self
 			end
 			
