@@ -13,8 +13,8 @@ module XAS
 		def start!
 			set_config_defaults
 		
-			Eventful.on :event do |e, subject, event|
-				puts "- Event triggered on #{subject.to_s}: #{event.map(&:to_s).join "."}"
+			Eventful.on :event do |e, subject, event, args|
+				puts "- Event triggered on #{subject.to_s}: #{event.map(&:to_s).join "."} - [#{args.map(&:to_s).join ", "}]"
 			end
 			
 			trigger :start
