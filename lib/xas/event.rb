@@ -44,7 +44,7 @@ module XAS
 		end
 		
 		def ==(other)
-			self.id == other.id && self.class == other.class
+			saved? ? self.id == other.id : self.equal?(other)
 		end
 		
 		protected

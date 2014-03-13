@@ -12,7 +12,7 @@ module XAS
 		end
 		
 		def ==(other)
-			self.id == other.id && self.type == other.type
+			saved? ? self.id == other.id : self.equal?(other)
 		end
 		
 		alias_method :eql?, :==
