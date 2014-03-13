@@ -13,18 +13,18 @@ module XAS
 			
 			def trigger(event, *args)
 				event = parse_event_argument [event].flatten
+				Eventful.trigger :event, self, event, args unless self == Eventful
 				event.map.with_index { |e, i| event[0..i] }.unshift([]).reverse.map { |i| hooks[i] }.flatten.compact.each do |e|
 					e.call(event, *args)
 				end unless hooks.nil?
-				Eventful.trigger :event, self, event, *args unless self == Eventful
 			end
 			
 			def on(*event, &block)
 				event = parse_event_argument event
+				Eventful.trigger :hook, self, event unless self == Eventful
 				@hooks ||= {}
 				@hooks[event] ||= []
 				@hooks[event] << block
-				Eventful.trigger :hook, self, event unless self == Eventful
 			end
 			
 			def on_any(&block)
