@@ -29,17 +29,18 @@ module XAS
 		end
 		
 		class Query
-			attr_reader :storage, :conditions, :sorts, :limits, :skips
+			attr_reader :storage, :conditions, :sorts, :limits, :skips, :params
 			
 			def initialize(storage)
 				@storage = storage
 				@conditions = {}
 				@sorts = {}
+				@params = {}
 				self
 			end
 			
 			def execute
-				storage.find conditions, sorts, limits, skips
+				storage.find self
 			end
 			
 			def where(condition)
@@ -62,6 +63,11 @@ module XAS
 				self
 			end
 			
+			def param(name, value)
+				@params[name] = value
+				self
+			end
+			
 			def unscoped
 				conditions.clear
 				sorts.clear
@@ -70,13 +76,17 @@ module XAS
 				self
 			end
 			
+			def to_s
+				{ :params => params, :conditions => conditions, :sort => sorts, :limit => limits, :skip => skips }.inspect
+			end
+			
 			def method_missing(method, *args, &block)
 				return instance_exec(*args, &storage.class.scopes[method]) unless storage.class.scopes[method].nil?
 				respond_to?(method) ? execute.send(method, *args, &block) : super
 			end
 			
 			def respond_to?(method)
-				super || !storage.class.scopes[method].nil? || Enumerable.instance_methods.include?(method)
+				super || !storage.class.scopes[method].nil? || Enumerator.instance_methods.include?(method)
 			end
 		end
 	end

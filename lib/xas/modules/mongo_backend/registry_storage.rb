@@ -1,5 +1,13 @@
 module XAS::Modules::MongoBackend
 	class RegistryStorage < XAS::RegistryStorage
+		scope :sorted do
+			sort :date => 1, :_id => 1
+		end
+		
+		scope :between do |first, last|
+			where :date => {}.merge(first ? { :$gte => first } : {}).merge(last ? { :$lt => last } : {})
+		end
+		
 		def initialize(backend, config)
 			super
 			set_config_defaults
@@ -13,10 +21,10 @@ module XAS::Modules::MongoBackend
 			backend.database[config.get(:placeholder_collection)]
 		end
 		
-		def find(conditions = {}, sort = {}, limit = nil, skip = nil)
-			cursor = event_collection.find(conditions).sort(sort)
-			cursor = cursor.limit(limit) unless limit.nil?
-			cursor = cursor.skip(skip) unless skip.nil?
+		def find(query)
+			cursor = event_collection.find(query.conditions).sort(query.sorts)
+			cursor = cursor.limit(query.limits) unless query.limits.nil?
+			cursor = cursor.skip(query.skips) unless query.skips.nil?
 			Enumerator.new do |y|
 				cursor.each do |e|
 					y.yield hydrate_event(e)
