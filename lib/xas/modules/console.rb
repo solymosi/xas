@@ -9,7 +9,7 @@ module XAS
 			def initialize!(config = nil)
 				raise "Module already initialized." if @initialized
 				
-				Environment.on :ready do
+				Environment.on "frontend.start" do
 					Pry.pager = nil
 					
 					Backend.send :define_method, :pretty_print do |q|

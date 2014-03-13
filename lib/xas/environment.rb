@@ -14,7 +14,7 @@ module XAS
 			set_config_defaults
 		
 			Eventful.on :event do |e, subject, event|
-				puts "Event triggered on #{subject.inspect}: #{event.map(&:to_s).join "."}"
+				puts "- Event triggered on #{subject.to_s}: #{event.map(&:to_s).join "."}"
 			end
 			
 			trigger :start
@@ -25,6 +25,8 @@ module XAS
 			initialize_item_cache
 			
 			trigger :ready
+			
+			trigger "frontend.start"
 		end
 		
 		protected
