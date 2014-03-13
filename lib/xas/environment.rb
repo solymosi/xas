@@ -3,7 +3,6 @@ module XAS
 		extend self
 		include Eventful
 		
-		attr_reader :events
 		attr_reader :modules, :backends
 		attr_reader :registry, :item_cache
 		
@@ -12,21 +11,20 @@ module XAS
 		end
 		
 		def start!
-			@events = EventService.new
 			set_config_defaults
 		
-			_event.on_any do |event|
-				puts "Triggered event #{event.map(&:to_s).join "."}"
+			Eventful.on :event do |e, subject, event|
+				puts "Event triggered on #{subject.inspect}: #{event.map(&:to_s).join "."}"
 			end
-		
-			_event.trigger "environment.start"
+			
+			trigger :start
 			
 			load_modules
 			register_backends
 			initialize_registry
 			initialize_item_cache
 			
-			_event.trigger "environment.ready"
+			trigger :ready
 		end
 		
 		protected
@@ -49,7 +47,7 @@ module XAS
 				config.get(:modules).each do |item|
 					modules.load item
 				end
-				_event.trigger "environment.modules.loaded"
+				trigger "modules.loaded"
 			end
 			
 			def register_backends
@@ -57,19 +55,19 @@ module XAS
 				config.get(:backend).keys.each do |item|
 					backends.register item, config.get(:backend, item)
 				end
-				_event.trigger "environment.backends.registered"
+				trigger "backends.registered"
 			end
 			
 			def initialize_registry
 				storage = backends.get(config.get(:registry, :backend)).get_storage(:registry, config.get(:registry))
 				@registry = Registry.new(storage)
-				_event.trigger "environment.registry.initialized"
+				trigger "registry.initialized"
 			end
 			
 			def initialize_item_cache
 				storage = backends.get(config.get(:registry, :backend)).get_storage(:item_cache, config.get(:item_cache))
-				@item_cache = ItemCache.new(storage)
-				_event.trigger "environment.item_cache.initialized"
+				@item_cache = ItemCache.new(storage, registry)
+				trigger "item_cache.initialized"
 			end
 	end
 end
