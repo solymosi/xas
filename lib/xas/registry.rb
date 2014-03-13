@@ -1,5 +1,7 @@
 module XAS
 	class Registry
+		include Eventful
+		
 		attr_reader :storage
 		
 		def initialize(storage)
@@ -14,17 +16,11 @@ module XAS
 				save_object(placeholder) unless placeholder.saved?
 			end
 			save_object event
+			trigger :save, event
 		end
 		
 		def events
 			query
-		end
-		
-		def build_item_cache(cache)
-			cache = Environment.item_cache if cache.nil?
-			events.each do |e|
-				e.apply cache
-			end
 		end
 		
 		def get_affected_events(event)
