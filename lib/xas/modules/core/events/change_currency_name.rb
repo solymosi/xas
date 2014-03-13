@@ -9,6 +9,12 @@ module XAS::Modules::Core
 			field :new_name, String
 			
 			validate :new_name, :presence
+			
+			def apply(cache)
+				c = cache.get references[:currency], get(:date)
+				c.set :name, get(:new_name)
+				cache.save c
+			end
 		end
 	end
 end

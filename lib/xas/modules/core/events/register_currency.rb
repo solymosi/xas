@@ -7,6 +7,13 @@ module XAS::Modules::Core
 			
 			field :name, String
 			field :code, String
+			
+			def apply(cache)
+				c = cache.create references[:currency], get(:date)
+				c.set :name, get(:name)
+				c.set :code, get(:code)
+				cache.save c
+			end
 		end
 	end
 end
