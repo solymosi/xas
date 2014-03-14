@@ -11,9 +11,8 @@ module XAS
 				@options[:type]
 			end
 			
-			def set(value)
-				raise "Value must be #{type.to_s}." unless type.nil? || value.is_a?(type)
-				value
+			def create_value
+				Value.new self
 			end
 		end
 	end

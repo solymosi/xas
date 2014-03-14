@@ -3,24 +3,31 @@ module XAS
 		extend ActiveSupport::Concern
 		include Validation
 		
-		def get(name)
-			return nil if @fields.nil?
-			@fields[name]
+		def values
+			@values || {}
 		end
 		
-		def set(name, value)
-			raise "Field does not exist." if self.class.fields[name].nil?
-			@fields ||= {}
-			@fields[name] = value.nil? ? nil : self.class.fields[name].set(value)
+		def value(name)
+			@values ||= {}
+			@values[name] ||= self.class.fields[name].create_value
+			values[name]
 		end
 		
-		def fields
-			@fields || {}
+		def load(values)
+			raise "Hash required." unless values.is_a?(Hash)
+			values.each do |name, val|
+				value(name).set val
+			end
+			values
 		end
 		
-		def load(fields)
-			raise "Hash required." unless fields.is_a?(Hash)
-			@fields = fields
+		def method_missing(method, *args, &block)
+			name = method.to_s.ends_with?("=") ? method.to_s[0...-1].to_sym : method
+			unless self.class.fields[name].nil?
+				return value(name).set(*args) if method.to_s.ends_with?("=")
+				return value(name).get(*args)
+			end
+			super
 		end
 		
 		module ClassMethods

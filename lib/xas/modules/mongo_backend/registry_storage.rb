@@ -56,9 +56,9 @@ module XAS::Modules::MongoBackend
 				{
 					:_id => event.id,
 					:type => event.class.name,
-					:date => event.get(:date),
-					:created_at => event.get(:created_at),
-					:fields => event.fields.except(:date, :created_at),
+					:date => event.value(:date).get,
+					:created_at => event.value(:created_at).get,
+					:values => Hash[event.values.except(:date, :created_at).map { |n, v| [n, v.get] }],
 					:references => Hash[event.references.map do |a|
 						raise "Reference '#{a[0]}' must be saved first." unless a[1].nil? || !a[1].id.nil?
 						[a[0], a[1].nil? ? nil : a[1].id]
@@ -69,11 +69,9 @@ module XAS::Modules::MongoBackend
 			def hydrate_event(data)
 				data.deep_symbolize_keys!
 				event = data[:type].constantize.new data[:_id]
-				event.set :date, data[:date]
-				event.set :created_at, data[:created_at]
-				data[:fields].each do |name, value|
-					event.set name, value
-				end
+				event.value(:date).set data[:date]
+				event.value(:created_at).set data[:created_at]
+				event.load data[:values]
 				data[:references].each do |name, id|
 					event.references[name] = XAS::Placeholder.new event.class.references[name][:type], id
 				end

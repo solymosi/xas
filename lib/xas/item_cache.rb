@@ -10,7 +10,7 @@ module XAS
 			@meta = storage.find_meta.reverse_merge :valid_to => nil
 			
 			registry.on :save do |e, event|
-				set_valid_to [valid_to, event.get(:date)].min unless valid_to.nil?
+				set_valid_to [valid_to, event.value(:date).get].min unless valid_to.nil?
 			end
 			
 			storage.on :build_required do |e, date|
@@ -21,24 +21,24 @@ module XAS
 		def save(item)
 			raise "Item object required." unless item.is_a?(Item)
 			raise "Item already saved." if item.saved?
-			raise "From date not set." if item.get(:from).nil?
+			raise "From date not set." if item.value(:from).nil?
 			raise "No placeholder set for item." if item.placeholder.nil?
 			raise "Unsaved placeholder is assigned to item." unless item.placeholder.saved?
 			raise "Item has the following errors: #{item.errors.inspect}" unless item.valid?
 			
-			date = item.get(:from)
+			date = item.value(:from).get
 			prev = at(date, false).ref(item.placeholder).first
 			raise "Cannot resurrect deleted item." if prev.nil? && before(date).ref(item.placeholder).any?
 			unless prev.nil?
-				prev.set :to, date
+				prev.value(:to).set date
 				storage.save prev
 			end
 			
 			storage.remove after(date).ref(item.placeholder)
 			
 			item.send :set_id, new_id
-			item.set :from, date
-			item.set :to, nil
+			item.value(:from).set date
+			item.value(:to).set nil
 			storage.save item
 		end
 		
@@ -53,7 +53,7 @@ module XAS
 				@building = true
 				trigger "build.started", date
 				registry.sorted.between(valid_to, date).each do |event|
-					raise "Invalid event order." if !valid_to.nil? && valid_to > event.get(:date)
+					raise "Invalid event order." if !valid_to.nil? && valid_to > event.value(:date).get
 					trigger :build, event
 					event.apply self
 				end
@@ -80,7 +80,7 @@ module XAS
 			raise "Cannot create item for an unsaved placeholder." unless placeholder.saved?
 			raise "Item already exists or existed." if at(date, false).ref(placeholder).any? || before(date).ref(placeholder).any?
 			item = placeholder.type.new(placeholder)
-			item.set :from, date
+			item.value(:from).set date
 			item
 		end
 		
@@ -88,15 +88,16 @@ module XAS
 			raise "Date required." unless date.is_a?(Time)
 			raise "Placeholder required." unless placeholder.is_a?(Placeholder)
 			raise "Cannot retrieve item for an unsaved placeholder." unless placeholder.saved?
-			prev = at(date, false).ref(placeholder).first
-			raise "Item does not exist on the provided date." if prev.nil?
-			item = prev.class.new prev.placeholder
-			item.set :from, date
+			item = at(date, false).ref(placeholder).first
+			raise "Item does not exist on the provided date." if item.nil?
+			item.send :set_id, nil
+			item.value(:from).set date
+			item.value(:to).set nil
 			item
 		end
 		
 		def building?
-			!!@building
+			@building || false
 		end
 		
 		def valid_to

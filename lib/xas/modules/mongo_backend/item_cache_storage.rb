@@ -75,20 +75,18 @@ module XAS::Modules::MongoBackend
 					:_id => item.id,
 					:_ref => item.placeholder.id,
 					:type => item.class.name,
-					:from => item.get(:from),
-					:to => item.get(:to),
-					:fields => item.fields.except(:from, :to)
+					:from => item.value(:from).get,
+					:to => item.value(:to).get,
+					:values => Hash[item.values.except(:from, :to).map { |n, v| [n, v.get] }]
 				}
 			end
 			
 			def hydrate_item(data)
 				data.deep_symbolize_keys!
 				item = data[:type].constantize.new XAS::Placeholder.new(data[:type].constantize, data[:_ref]), data[:_id]
-				item.set :from, data[:from]
-				item.set :to, data[:to]
-				data[:fields].each do |name, value|
-					item.set name, value
-				end
+				item.value(:from).set data[:from]
+				item.value(:to).set data[:to]
+				item.load data[:values]
 				item
 			end
 	end

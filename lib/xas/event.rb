@@ -13,7 +13,7 @@ module XAS
 		def initialize(id = nil)
 			@id = id
 			@references = {}
-			set :created_at, Time.now
+			value(:created_at).set Time.now
 		end
 		
 		def apply(*args)

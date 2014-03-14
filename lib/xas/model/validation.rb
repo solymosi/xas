@@ -25,7 +25,7 @@ module XAS
 				errors.clear
 				self.class.validations.each do |field, validators|
 					validators.each do |validator|
-						validator.validate self, field, get(field) unless field.nil?
+						validator.validate self, field, value(field).get unless field.nil?
 						validator.validate self if field.nil?
 					end unless validators.nil?
 				end
