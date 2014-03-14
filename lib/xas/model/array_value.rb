@@ -6,6 +6,10 @@ module XAS
 				@data = []
 			end
 			
+			def get
+				self
+			end
+			
 			def set(value)
 				@data = parse_array(value)
 			end
@@ -17,7 +21,7 @@ module XAS
 			alias_method :<<, :push
 			
 			def concat(array)
-				@data.concat array.map(&:parse)
+				@data.concat parse_array(array)
 			end
 			
 			def to_hash
@@ -31,7 +35,7 @@ module XAS
 			protected
 				def parse_array(value)
 					raise "Value must be enumerable." unless value.nil? || value.is_a?(Enumerable)
-					value.map(&:parse)
+					value.map { |i| parse(i) }
 				end
 		end
 	end
