@@ -14,7 +14,7 @@ module XAS
 			end
 			
 			storage.on :build_required do |e, date|
-				build date
+				build(date)
 			end
 		end
 		
@@ -64,6 +64,16 @@ module XAS
 			end
 		end
 		
+		def rebuild(date = nil)
+			clear
+			build(date)
+		end
+		
+		def clear
+			storage.remove items
+			set_valid_to nil
+		end
+		
 		def create(placeholder, date)
 			raise "Date required." unless date.is_a?(Time)
 			raise "Placeholder required." unless placeholder.is_a?(Placeholder)
@@ -83,10 +93,6 @@ module XAS
 			item = prev.class.new prev.placeholder
 			item.set :from, date
 			item
-		end
-		
-		def rebuild(date = nil)
-			
 		end
 		
 		def building?

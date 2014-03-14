@@ -1,6 +1,6 @@
 module XAS::Modules::MongoBackend
 	class ItemCacheStorage < XAS::ItemCacheStorage
-		META_ID = "__meta__"
+		META_ID = :_meta
 		
 		scope :at do |date, build = true|
 			param(:build, build ? date : nil).where :from => { :$lte => date }, :$or => [ { :to => nil }, { :to => { :$gt => date } } ]
