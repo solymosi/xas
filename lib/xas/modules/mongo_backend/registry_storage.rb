@@ -69,9 +69,9 @@ module XAS::Modules::MongoBackend
 			def hydrate_event(data)
 				data.deep_symbolize_keys!
 				event = data[:type].constantize.new data[:_id]
+				event.load data[:values]
 				event.value(:date).set data[:date]
 				event.value(:created_at).set data[:created_at]
-				event.load data[:values]
 				data[:references].each do |name, id|
 					event.references[name] = XAS::Placeholder.new event.class.references[name][:type], id
 				end

@@ -84,9 +84,9 @@ module XAS::Modules::MongoBackend
 			def hydrate_item(data)
 				data.deep_symbolize_keys!
 				item = data[:type].constantize.new XAS::Placeholder.new(data[:type].constantize, data[:_ref]), data[:_id]
+				item.load data[:values]
 				item.value(:from).set data[:from]
 				item.value(:to).set data[:to]
-				item.load data[:values]
 				item
 			end
 	end
