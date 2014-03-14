@@ -1,14 +1,19 @@
 module XAS
 	module Model
-		class CollectionField < Field
+		class GroupField < Field
 			attr_reader :model
 			
 			def initialize(*args)
 				super
 				model = Class.new
 				model.send :include, Model
-				model.class_eval &options[:block]
+				model.class_eval &options[:definition]
 				@model = model
+			end
+			
+			def merge_definition(&block)
+				raise "Definition block required." unless block_given?
+				@model.class_eval(&block)
 			end
 			
 			def type
@@ -24,7 +29,7 @@ module XAS
 			end
 			
 			def create_value
-				CollectionValue.new self
+				GroupValue.new self
 			end
 		end
 	end

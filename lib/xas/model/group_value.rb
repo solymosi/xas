@@ -1,6 +1,6 @@
 module XAS
 	module Model
-		class CollectionValue < Value
+		class GroupValue < Value
 			include Model
 			
 			def initialize(*args)

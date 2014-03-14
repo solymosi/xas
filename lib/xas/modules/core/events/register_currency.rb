@@ -9,16 +9,17 @@ module XAS::Modules::Core
 			field :code, String
 			
 			field_array :numbers, Integer
-			field_collection :sub do
+			field_group :sub do
 				field :one, String
 				field :two, Integer
+				validate :two, :presence
 				
-				field_collection_array :sub2 do
-					field_collection :arr do
+				field_group_array :sub2 do
+					field_group :arr do
 						field :huhu, Integer
 						
-						field_collection_array :asdf do
-							field_collection_array :xyz do
+						field_group_array :asdf do
+							field_group_array :xyz do
 								field :eee, Time
 							end
 						end
