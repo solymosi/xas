@@ -120,8 +120,7 @@ module XAS
 		end
 		
 		def method_missing(method, *args, &block)
-			return storage.send method, *args, &block if storage.respond_to?(method)
-			super
+			storage.respond_to?(method) ? storage.send(method, *args, &block) : super
 		end
 		
 		def respond_to?(method)

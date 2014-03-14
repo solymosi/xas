@@ -20,6 +20,10 @@ module XAS
 				@data.respond_to?(method) ? @data.send(method, *args, &block) : super
 			end
 			
+			def respond_to?(method)
+				super || @data.respond_to?(method)
+			end
+			
 			protected
 				def parse(value)
 					return field.model.from_hash(value) if value.is_a?(Hash)

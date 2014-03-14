@@ -19,6 +19,10 @@ module XAS
 				model.respond_to?(method) ? model.send(method, *args, &block) : super
 			end
 			
+			def respond_to?(method)
+				super || model.respond_to?(method)
+			end
+			
 			def create_value
 				CollectionValue.new self
 			end

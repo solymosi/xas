@@ -39,6 +39,11 @@ module XAS
 			super
 		end
 		
+		def respond_to?(method)
+			name = method.to_s.ends_with?("=") ? method.to_s[0...-1].to_sym : method
+			super || !self.class.fields[name].nil?
+		end
+		
 		module ClassMethods
 			def fields
 				own = @fields || {}

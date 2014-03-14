@@ -32,6 +32,10 @@ module XAS
 				@data.respond_to?(method) ? @data.send(method, *args, &block) : super
 			end
 			
+			def respond_to?(method)
+				super || @data.respond_to?(method)
+			end
+			
 			protected
 				def parse_array(value)
 					raise "Value must be enumerable." unless value.nil? || value.is_a?(Enumerable)
