@@ -1,6 +1,6 @@
 module XAS
 	module Model
-		class ArrayValue
+		class ArrayValue < Value
 			def initialize(*args)
 				super
 				@data = []

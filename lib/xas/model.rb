@@ -19,10 +19,15 @@ module XAS
 		
 		def load(values)
 			raise "Hash required." unless values.is_a?(Hash)
+			clear
 			values.each do |name, val|
 				value(name).set val
 			end
-			values
+			self
+		end
+		
+		def clear
+			@values = {}
 		end
 		
 		def method_missing(method, *args, &block)
@@ -52,6 +57,10 @@ module XAS
 			
 			def field_collection(name, options = {}, &block)
 				field name, CollectionField, :block => block
+			end
+			
+			def from_hash(values)
+				self.new.load(values)
 			end
 		end
 	end
