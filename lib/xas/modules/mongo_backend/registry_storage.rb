@@ -58,7 +58,7 @@ module XAS::Modules::MongoBackend
 					:type => event.class.name,
 					:date => event.value(:date).get,
 					:created_at => event.value(:created_at).get,
-					:values => Hash[event.values.except(:date, :created_at).map { |n, v| [n, v.get] }],
+					:values => event.to_hash.except(:date, :created_at),
 					:references => Hash[event.references.map do |a|
 						raise "Reference '#{a[0]}' must be saved first." unless a[1].nil? || !a[1].id.nil?
 						[a[0], a[1].nil? ? nil : a[1].id]

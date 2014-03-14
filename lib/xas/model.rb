@@ -13,6 +13,10 @@ module XAS
 			values[name]
 		end
 		
+		def to_hash
+			Hash[values.map { |n, v| [n, v.to_hash] }]
+		end
+		
 		def load(values)
 			raise "Hash required." unless values.is_a?(Hash)
 			values.each do |name, val|
@@ -40,6 +44,14 @@ module XAS
 				raise "Field already defined." if fields.include?(name.to_sym)
 				@fields ||= {}
 				@fields[name.to_sym] = klass.ancestors.include?(Field) ? klass.new(options) : Field.new(options.reverse_merge(:type => klass))
+			end
+			
+			def field_array(name, klass, options = {})
+				field name, ArrayField, :type => klass
+			end
+			
+			def field_collection(name, options = {}, &block)
+				field name, CollectionField, :block => block
 			end
 		end
 	end

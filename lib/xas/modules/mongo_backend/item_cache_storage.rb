@@ -77,7 +77,7 @@ module XAS::Modules::MongoBackend
 					:type => item.class.name,
 					:from => item.value(:from).get,
 					:to => item.value(:to).get,
-					:values => Hash[item.values.except(:from, :to).map { |n, v| [n, v.get] }]
+					:values => item.to_hash.except(:from, :to)
 				}
 			end
 			

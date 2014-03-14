@@ -15,6 +15,10 @@ module XAS
 				@data = parse(value)
 			end
 			
+			def to_hash
+				get.respond_to?(:to_hash) ? get.to_hash : get
+			end
+			
 			def nil?
 				get.nil?
 			end
