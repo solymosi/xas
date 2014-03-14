@@ -61,7 +61,11 @@ module XAS
 			end
 			
 			def field_collection(name, options = {}, &block)
-				field name, CollectionField, :block => block
+				field name, CollectionField, options.merge(:block => block)
+			end
+			
+			def field_collection_array(name, options = {}, &block)
+				field_array name, CollectionField.new(:block => block).model, options
 			end
 			
 			def from_hash(values)

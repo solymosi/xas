@@ -8,6 +8,10 @@ module XAS
 				@data = field.model.new
 			end
 			
+			def get
+				self
+			end
+			
 			def set(value)
 				@data = parse(value)
 			end

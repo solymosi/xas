@@ -14,6 +14,12 @@ module XAS
 				@data = parse_array(value)
 			end
 			
+			def build(*args)
+				item = field.type.new(*args)
+				push item
+				item
+			end
+			
 			def push(value)
 				@data.push parse(value)
 			end

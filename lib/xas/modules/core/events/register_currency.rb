@@ -12,6 +12,20 @@ module XAS::Modules::Core
 			field_collection :sub do
 				field :one, String
 				field :two, Integer
+				
+				field_collection_array :sub2 do
+					field_collection :arr do
+						field :huhu, Integer
+						
+						field_collection_array :asdf do
+							field_collection_array :xyz do
+								field :eee, Time
+							end
+						end
+					end
+					
+					field :test, String
+				end
 			end
 			
 			def apply(cache)
