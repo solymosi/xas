@@ -3,37 +3,84 @@ module XAS
 		module Validation
 			extend ActiveSupport::Concern
 			
-			def errors
+			module Field
+				def validators
+					own = @validators || []
+					superclass.respond_to?(:validators) ? superclass.validators.merge(own) : own
+				end
+				
+				def validate(*args, &block)
+					options = args.extract_options!
+					raise "Invalid parameters." if args.size > 1
+					raise "Validator or block required." unless args.any? || block_given?
+					validator, validate_each = args.first, options.delete(:each)
+					validator = Validation.const_get("#{validator.to_s}_validator".camelcase).new(options, &block) unless validator.nil?
+					validator = BlockValidator.new(options, &block) if block_given?
+					@validators ||= []
+					@validators << validator
+				end
+			end
+			
+			module Value
+				def errors
+					@errors || {}
+				end
+				
+				def add_error(error, params = {})
+					raise "Error must be a symbol." unless error.is_a?(Symbol)
+					@errors ||= {}
+					@errors[error] = params
+				end
+				
+				def valid?
+					@errors.clear
+					field.validators.each do |validator|
+						validator.validate self, get
+					end
+					errors.none?
+				end
+			end
+			
+			def model_errors
 				@errors || {}
 			end
 			
-			def add_error(field, error, options = {})
-				raise "Error must be a symbol or a hash." unless error.is_a?(Symbol) || error.is_a?(Hash)
-				raise "Field does not exist." if !field.nil? && self.class.fields[field].nil?
-				error = options.merge(:error => error) if error.is_a?(Symbol)
-				raise "Error code must be specified." if error[:error].nil?
+			def add_model_error(error, params = {})
+				raise "Error must be a symbol." unless error.is_a?(Symbol)
 				@errors ||= {}
-				@errors[field] ||= []
-				@errors[field] << error
+				@errors[error] = params
 			end
 			
-			def add_model_error(error, options = {})
-				add_error nil, error, options
+			def errors
+				hash = { :_model => model_errors }
+				hash.merge self.class.fields.keys.inject(Hash.new) { |result, current| result.merge value(current).errors }
+			end
+			
+			def add_error(field, *args, &block)
+				raise "Error must be a symbol." unless error.is_a?(Symbol)
+				raise "Field '#{field.to_s}' does not exist." if !field.nil? && self.class.fields[field].nil?
+				value(field).add_error(*args, &block)
 			end
 			
 			def valid?
-				errors.clear
-				self.class.validations.each do |field, validators|
-					validators.each do |validator|
-						validator.validate self, field, value(field).get unless field.nil?
-						validator.validate self if field.nil?
-					end unless validators.nil?
+				@errors.clear
+				validators.each do |validator|
+					validator.validate self
 				end
-				yield if block_given?
-				!errors.any?
+				self.class.fields.each do |name, field|
+					value(name).valid?
+				end
+				errors.none?
 			end
 			
 			module ClassMethods
+				def validate(*args, block)
+					options = args.extract_options!
+					raise "Invalid parameters." if args.size > 2
+					raise "Validator or block required." unless args.last || block_given?
+					validator, field = args.last, (args.size > 1 ? args.first : nil)
+				end
+			
 				def validate(*args, &block)
 					options = args.extract_options!
 					args << BlockValidator.new(options, &block) if block_given?
@@ -45,14 +92,18 @@ module XAS
 						raise "Field validator required." if !field.nil? && !validator.is_a?(FieldValidator)
 						raise "Model validator required." if field.nil? && !validator.is_a?(ModelValidator)
 					end
-					@validations ||= {}
-					@validations[field] ||= []
-					@validations[field] << validator
+					@validators ||= {}
+					@validators[field] ||= []
+					@validators[field] << validator
 				end
 				
-				def validations
-					own = @validations || {}
-					superclass.respond_to?(:validations) ? superclass.validations.merge(own) : own
+				def validators
+					own = @validators || {}
+					superclass.respond_to?(:validators) ? superclass.validators.merge(own) : own
+				end
+				
+				def model_validators
+					
 				end
 			end
 		end

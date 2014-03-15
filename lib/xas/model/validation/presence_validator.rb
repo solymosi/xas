@@ -1,9 +1,9 @@
 module XAS
 	module Model
 		module Validation
-			class PresenceValidator < FieldValidator
-				def validate(model, field, value)
-					model.add_error field, :blank if value.blank?
+			class PresenceValidator < Validator
+				def validate(value)
+					value.add_error :blank if value.get.blank?
 				end
 			end
 		end
