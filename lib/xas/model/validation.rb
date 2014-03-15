@@ -5,17 +5,14 @@ module XAS
 			
 			module Field
 				def validators
-					own = @validators || []
-					superclass.respond_to?(:validators) ? superclass.validators.merge(own) : own
+					@validators || []
 				end
 				
 				def validate(*args, &block)
 					options = args.extract_options!
-					raise "Invalid parameters." if args.size > 1
-					raise "Validator or block required." unless args.any? || block_given?
-					validator, validate_each = args.first, options.delete(:each)
-					validator = Validation.const_get("#{validator.to_s}_validator".camelcase).new(options, &block) unless validator.nil?
-					validator = BlockValidator.new(options, &block) if block_given?
+					args << BlockValidator.new(options, &block) if block_given?
+					raise "Validator or block required." if args.size != 1
+					validator = block_given? ? args.first : Validation.const_get("#{args.first.to_s}_validator".camelcase).new(options)
 					@validators ||= []
 					@validators << validator
 				end
@@ -33,7 +30,8 @@ module XAS
 				end
 				
 				def valid?
-					@errors.clear
+					errors.clear
+					binding.pry
 					field.validators.each do |validator|
 						validator.validate self, get
 					end
@@ -41,31 +39,25 @@ module XAS
 				end
 			end
 			
-			def model_errors
-				@errors || {}
+			def errors
+				@errors ||= {}
+				hash = @errors.any? ? { :_model => @errors } : {}
+				self.class.fields.each do |name, field|
+					hash[name] = value(name).errors if value(name).errors.any?
+				end
+				hash
 			end
 			
-			def add_model_error(error, params = {})
+			def add_error(error, params = {})
 				raise "Error must be a symbol." unless error.is_a?(Symbol)
 				@errors ||= {}
 				@errors[error] = params
 			end
 			
-			def errors
-				hash = { :_model => model_errors }
-				hash.merge self.class.fields.keys.inject(Hash.new) { |result, current| result.merge value(current).errors }
-			end
-			
-			def add_error(field, *args, &block)
-				raise "Error must be a symbol." unless error.is_a?(Symbol)
-				raise "Field '#{field.to_s}' does not exist." if !field.nil? && self.class.fields[field].nil?
-				value(field).add_error(*args, &block)
-			end
-			
 			def valid?
-				@errors.clear
-				validators.each do |validator|
-					validator.validate self
+				@errors = {}
+				self.class.validators.each do |validator|
+					validator.validate self, nil
 				end
 				self.class.fields.each do |name, field|
 					value(name).valid?
@@ -74,36 +66,25 @@ module XAS
 			end
 			
 			module ClassMethods
-				def validate(*args, block)
-					options = args.extract_options!
-					raise "Invalid parameters." if args.size > 2
-					raise "Validator or block required." unless args.last || block_given?
-					validator, field = args.last, (args.size > 1 ? args.first : nil)
-				end
-			
 				def validate(*args, &block)
 					options = args.extract_options!
 					args << BlockValidator.new(options, &block) if block_given?
 					raise "Invalid parameters." unless (1..2).include?(args.size)
-					validator, field = args.last, (args.many? ? args.first : nil)
-					raise "Field does not exist." if !field.nil? && fields[field].nil?
-					validator = Validation.const_get("#{validator.to_s}_validator".camelcase).new(options) unless validator.is_a?(BlockValidator)
-					unless validator.is_a?(BlockValidator)
-						raise "Field validator required." if !field.nil? && !validator.is_a?(FieldValidator)
-						raise "Model validator required." if field.nil? && !validator.is_a?(ModelValidator)
+					validator, field = args.last, (args.size > 1 ? args.first : nil)
+					puts ({:field => field, :validator => validator, :block => block, :options => options}).inspect
+					unless field.nil?
+						raise "Field '#{field.to_s}' does not exist." if fields[field].nil?
+						return block_given? ? fields[field].validate(&block) : fields[field].validate(validator)
 					end
-					@validators ||= {}
-					@validators[field] ||= []
-					@validators[field] << validator
+					validator = Validation.const_get("#{validator.to_s}_validator".camelcase).new(options) unless validator.is_a?(BlockValidator)
+					raise "Invalid validator." unless validator.is_a?(Validator)
+					@validators ||= []
+					@validators << validator
 				end
 				
 				def validators
-					own = @validators || {}
-					superclass.respond_to?(:validators) ? superclass.validators.merge(own) : own
-				end
-				
-				def model_validators
-					
+					own = @validators || []
+					superclass.respond_to?(:validators) ? superclass.validators + own : own
 				end
 			end
 		end

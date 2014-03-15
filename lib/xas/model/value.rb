@@ -1,6 +1,8 @@
 module XAS
 	module Model
 		class Value
+			include Validation::Value
+			
 			attr_reader :field, :data
 			
 			def initialize(field)
