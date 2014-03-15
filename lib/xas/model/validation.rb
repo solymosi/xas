@@ -31,7 +31,6 @@ module XAS
 				
 				def valid?
 					errors.clear
-					binding.pry
 					field.validators.each do |validator|
 						validator.validate self, get
 					end
@@ -71,7 +70,6 @@ module XAS
 					args << BlockValidator.new(options, &block) if block_given?
 					raise "Invalid parameters." unless (1..2).include?(args.size)
 					validator, field = args.last, (args.size > 1 ? args.first : nil)
-					puts ({:field => field, :validator => validator, :block => block, :options => options}).inspect
 					unless field.nil?
 						raise "Field '#{field.to_s}' does not exist." if fields[field].nil?
 						return block_given? ? fields[field].validate(&block) : fields[field].validate(validator)
