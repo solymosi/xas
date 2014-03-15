@@ -8,6 +8,16 @@ module XAS::Modules::Core
 			field :name, String
 			field :code, String
 			
+			validate :name, :presence
+			validate :presence
+			validate :name do |field, value|
+				field.add_error :csibesz, :c => :d
+			end
+			
+			validate do |model|
+				model.add_error :modelerror, :a => :b
+			end
+			
 			field_array :numbers, Integer
 			field_group :sub do
 				field :one, String

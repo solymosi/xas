@@ -1,8 +1,6 @@
 module XAS
 	module Model
 		class GroupValue < Value
-			include Model
-			
 			def initialize(*args)
 				super
 				@data = field.model.new
@@ -18,6 +16,14 @@ module XAS
 			
 			def to_hash
 				@data.to_hash
+			end
+			
+			def valid?
+				@data.valid?
+			end
+			
+			def errors
+				@data.errors
 			end
 			
 			def method_missing(method, *args, &block)

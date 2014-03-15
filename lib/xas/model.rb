@@ -9,7 +9,7 @@ module XAS
 		
 		def value(name)
 			@values ||= {}
-			@values[name] ||= self.class.fields[name].create_value
+			@values[name] ||= self.class.fields[name].create_value unless self.class.fields[name].nil?
 			values[name]
 		end
 		
