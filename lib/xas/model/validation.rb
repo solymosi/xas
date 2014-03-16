@@ -96,7 +96,7 @@ module XAS
 					validator, field = args.last, (args.size > 1 ? args.first : nil)
 					unless field.nil?
 						raise "Field '#{field.to_s}' does not exist." if fields[field].nil?
-						return block_given? ? fields[field].validate(&block) : fields[field].validate(validator)
+						return block_given? ? fields[field].validate(options, &block) : fields[field].validate(validator, options)
 					end
 					validator = Validation.const_get("#{validator.to_s}_validator".camelcase).new(options) unless validator.is_a?(BlockValidator)
 					raise "Invalid validator." unless validator.is_a?(Validator)

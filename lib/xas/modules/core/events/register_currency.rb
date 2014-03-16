@@ -18,8 +18,6 @@ module XAS::Modules::Core
 				model.add_error :modelerror, :a => :b
 			end
 			
-
-			
 			field_array :numbers, Integer
 			field_hash :texts, String
 			validate :texts, :presence
@@ -27,7 +25,11 @@ module XAS::Modules::Core
 				field.add_error :fuck_you unless value == "NO!"
 			end
 			
-			validate :numbers, :opt => :ions do |field, value|
+			validate :numbers, :each => false do |field, value|
+				field.add_error :too_few unless value.count > 1
+			end
+			
+			validate :numbers do |field, value|
 				field.add_error :less_than_ten if value < 10
 			end
 			
