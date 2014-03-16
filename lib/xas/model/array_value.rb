@@ -36,6 +36,12 @@ module XAS
 				get.map { |i| i.respond_to?(:to_hash) ? i.to_hash : i }
 			end
 			
+			def pairs
+				Enumerator.new do |y|
+					each_with_index.each { |v, k| y.yield [k, v] }
+				end
+			end
+			
 			def method_missing(method, *args, &block)
 				@data.respond_to?(method) ? @data.send(method, *args, &block) : super
 			end

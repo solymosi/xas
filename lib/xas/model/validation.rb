@@ -10,7 +10,7 @@ module XAS
 				
 				def validate(*args, &block)
 					options = args.extract_options!.reverse_merge(:each => true)
-					validate_each, collection = options.delete(:each), is_a?(ArrayField) ##|| is_a?(HashField)
+					validate_each, collection = options.delete(:each), is_a?(ArrayField) || is_a?(HashField)
 					raise "Validators are not supported on a self-validating field." if self_validating? && (!collection || validate_each)
 					args << BlockValidator.new(options, &block) if block_given?
 					raise "Validator or block required." if args.size != 1
@@ -59,16 +59,6 @@ module XAS
 						end
 						super
 					end
-					
-					def pairs
-						respond_to?(:each_pair) ? each_pair : Enumerator.new do |y|
-							each_with_index.each { |v, k| y.yield [k, v] }
-						end
-					end
-				end
-				
-				module Hash
-					
 				end
 			end
 			

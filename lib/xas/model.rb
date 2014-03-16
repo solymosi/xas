@@ -64,6 +64,10 @@ module XAS
 				field name, ArrayField, options.reverse_merge(:type => klass)
 			end
 			
+			def field_hash(name, klass, options = {})
+				field name, HashField, options.reverse_merge(:type => klass)
+			end
+			
 			def field_group(name, options = {}, &block)
 				return fields[name.to_sym].merge_definition(&block) if has_field?(name) && fields[name.to_sym].is_a?(GroupField)
 				field name, GroupField, options.merge(:definition => block)
@@ -74,6 +78,13 @@ module XAS
 				return field.options[:group].merge_definition(&block) if has_field?(name) && field.is_a?(ArrayField) && field.options[:group].is_a?(GroupField)
 				group = GroupField.new(:definition => block)
 				field_array name, group.model, options.merge(:group => group)
+			end
+			
+			def field_group_hash(name, options = {}, &block)
+				field = fields[name.to_sym]
+				return field.options[:group].merge_definition(&block) if has_field?(name) && field.is_a?(HashField) && field.options[:group].is_a?(GroupField)
+				group = GroupField.new(:definition => block)
+				field_hash name, group.model, options.merge(:group => group)
 			end
 			
 			def from_hash(values)

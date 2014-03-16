@@ -21,6 +21,11 @@ module XAS::Modules::Core
 
 			
 			field_array :numbers, Integer
+			field_hash :texts, String
+			validate :texts, :presence
+			validate :texts do |field, value|
+				field.add_error :fuck_you unless value == "NO!"
+			end
 			
 			validate :numbers, :opt => :ions do |field, value|
 				field.add_error :less_than_ten if value < 10
@@ -31,7 +36,7 @@ module XAS::Modules::Core
 				field :two, Integer
 				validate :two, :presence
 				
-				field_group_array :sub2 do
+				field_group_hash :sub2 do
 					field_group :arr do
 						field :huhu, Integer
 						
