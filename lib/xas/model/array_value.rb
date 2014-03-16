@@ -1,6 +1,8 @@
 module XAS
 	module Model
 		class ArrayValue < Value
+			include Validation::Value::Collection
+			
 			def initialize(*args)
 				super
 				@data = []

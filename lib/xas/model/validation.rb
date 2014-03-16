@@ -5,22 +5,29 @@ module XAS
 			
 			module Field
 				def validators
-					@validators || []
+					@validators ||= []
 				end
 				
 				def validate(*args, &block)
-					options = args.extract_options!
+					options = args.extract_options!.reverse_merge(:each => true)
+					validate_each, collection = options.delete(:each), is_a?(ArrayField) ##|| is_a?(HashField)
+					raise "Validators are not supported on a self-validating field." if self_validating? && (!collection || validate_each)
 					args << BlockValidator.new(options, &block) if block_given?
 					raise "Validator or block required." if args.size != 1
 					validator = block_given? ? args.first : Validation.const_get("#{args.first.to_s}_validator".camelcase).new(options)
+					validator = ItemValidator.new(:validator => validator) if collection && validate_each
 					@validators ||= []
 					@validators << validator
+				end
+				
+				def self_validating?
+					type.instance_methods.include? :valid?
 				end
 			end
 			
 			module Value
 				def errors
-					@errors || {}
+					@errors ||= {}
 				end
 				
 				def add_error(error, params = {})
@@ -35,6 +42,33 @@ module XAS
 						validator.validate self, get
 					end
 					errors.none?
+				end
+				
+				module Collection
+					def valid?
+						field.self_validating? ? pairs.all? { |k, v| v.valid? } && super : super
+					end
+					
+					def errors
+						if field.self_validating?
+							item_errors = {}
+							pairs.each do |k, v|
+								item_errors[k] = v.errors if v.errors.any?
+							end
+							super.deep_merge! :_items => item_errors if item_errors.any?
+						end
+						super
+					end
+					
+					def pairs
+						respond_to?(:each_pair) ? each_pair : Enumerator.new do |y|
+							each_with_index.each { |v, k| y.yield [k, v] }
+						end
+					end
+				end
+				
+				module Hash
+					
 				end
 			end
 			

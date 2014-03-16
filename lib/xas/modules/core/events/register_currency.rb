@@ -18,7 +18,14 @@ module XAS::Modules::Core
 				model.add_error :modelerror, :a => :b
 			end
 			
+
+			
 			field_array :numbers, Integer
+			
+			validate :numbers, :opt => :ions do |field, value|
+				field.add_error :less_than_ten if value < 10
+			end
+			
 			field_group :sub do
 				field :one, String
 				field :two, Integer
@@ -31,11 +38,13 @@ module XAS::Modules::Core
 						field_group_array :asdf do
 							field_group_array :xyz do
 								field :eee, Time
+								validate :eee, :presence
 							end
 						end
 					end
 					
 					field :test, String
+					validate :test, :presence
 				end
 			end
 			

@@ -10,7 +10,7 @@ module XAS
 			end
 			
 			def type
-				@options[:type]
+				options[:type]
 			end
 			
 			def create_value
