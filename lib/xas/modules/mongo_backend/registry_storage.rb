@@ -70,7 +70,7 @@ module XAS::Modules::MongoBackend
 				event.value(:date).set data[:date]
 				event.value(:created_at).set data[:created_at]
 				data[:references].each do |name, id|
-					event.references[name] = XAS::Placeholder.new event.class.references[name][:type], id
+					event.references.value(name).set XAS::Placeholder.new(event.class.references[name][:type], id)
 				end
 				event
 			end

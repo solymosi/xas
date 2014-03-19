@@ -69,12 +69,14 @@ module XAS
 			end
 			
 			def field_group(name, options = {}, &block)
+				block = Proc.new {} unless block_given?
 				return fields[name.to_sym].merge_definition(&block) if has_field?(name) && fields[name.to_sym].is_a?(GroupField)
 				field name, GroupField, options.merge(:definition => block)
 			end
 			
 			def field_group_array(name, options = {}, &block)
 				field = fields[name.to_sym]
+				block = Proc.new {} unless block_given?
 				return field.options[:group].merge_definition(&block) if has_field?(name) && field.is_a?(ArrayField) && field.options[:group].is_a?(GroupField)
 				group = GroupField.new(:definition => block)
 				field_array name, group.model, options.merge(:group => group)
@@ -82,6 +84,7 @@ module XAS
 			
 			def field_group_hash(name, options = {}, &block)
 				field = fields[name.to_sym]
+				block = Proc.new {} unless block_given?
 				return field.options[:group].merge_definition(&block) if has_field?(name) && field.is_a?(HashField) && field.options[:group].is_a?(GroupField)
 				group = GroupField.new(:definition => block)
 				field_hash name, group.model, options.merge(:group => group)

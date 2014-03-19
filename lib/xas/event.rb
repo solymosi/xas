@@ -8,16 +8,6 @@ module XAS
 		field :created_at, Time
 		validate :created_at, :presence
 		
-		field_hash :references, Placeholder
-		validate do |model|
-			model.references.each do |name, placeholder|
-				model.value(:references).add_error name, :not_defined => {} if model.class.references[name].nil?
-			end
-			model.class.references.each do |name, params|
-				model.value(:references).add_error name, :missing => {} if params[:required] && model.references[name].nil?
-			end
-		end
-		
 		attr_reader :id
 		
 		def initialize(id = nil)
@@ -61,7 +51,7 @@ module XAS
 			def set_reference(name, ref)
 				raise "Reference does not exist." unless self.class.references.include?(name)
 				raise "Reference must be a placeholder." unless ref.is_a?(Placeholder)
-				value(:references)[name] = ref
+				value(:references).value(name).set(ref)
 			end
 		
 		class << self
@@ -75,6 +65,22 @@ module XAS
 				raise "Reference already defined." if references.include?(name)
 				raise "Reference type must be a subclass of Item." unless type.ancestors.include?(Item)
 				@references[name] = options.merge(:type => type).reverse_merge(:required => true)
+				
+				field_group :references unless fields.include?(:references)
+				method = :"field#{[:array, :hash].include?(options[:collection]) ? "_#{options[:collection]}" : ""}"
+				fields[:references].model.send method, name, XAS::Placeholder, @references[name].except(:type).merge(:klass => type)
+				fields[:references].model.validate name do |value, placeholder|
+					value.add_error :missing if placeholder.nil? && value.field.options[:required]
+					value.add_error :invalid unless placeholder.nil? || placeholder.type == value.field.options[:klass]
+				end
+			end
+			
+			def reference_array(name, type, options = {})
+				reference name, type, options.merge(:collection => :array)
+			end
+			
+			def reference_hash(name, type, options = {})
+				reference name, type, options.merge(:collection => :hash)
 			end
 			
 			# Dependencies

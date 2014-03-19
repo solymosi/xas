@@ -11,7 +11,7 @@ module XAS::Modules::Core
 			validate :new_name, :presence
 			
 			def apply(cache)
-				c = cache.get references[:currency], date
+				c = cache.get references.currency, date
 				c.name = new_name
 				cache.save c
 			end
