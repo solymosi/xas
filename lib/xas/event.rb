@@ -8,11 +8,20 @@ module XAS
 		field :created_at, Time
 		validate :created_at, :presence
 		
-		attr_reader :id, :references
+		field_hash :references, Placeholder
+		validate do |model|
+			model.references.each do |name, placeholder|
+				model.value(:references).add_error name, :not_defined => {} if model.class.references[name].nil?
+			end
+			model.class.references.each do |name, params|
+				model.value(:references).add_error name, :missing => {} if params[:required] && model.references[name].nil?
+			end
+		end
+		
+		attr_reader :id
 		
 		def initialize(id = nil)
 			@id = id
-			@references = {}
 			value(:created_at).set Time.now
 		end
 		
@@ -34,15 +43,6 @@ module XAS
 			set_reference name, ref
 		end
 		
-		def valid?
-			super do
-				self.class.references.each do |name, params|
-					add_model_error :error => :missing_reference, :reference => name if params[:required] && @references[name].nil?
-				end
-				yield if block_given?
-			end
-		end
-		
 		def ==(other)
 			saved? ? self.id == other.id : self.equal?(other)
 		end
@@ -61,7 +61,7 @@ module XAS
 			def set_reference(name, ref)
 				raise "Reference does not exist." unless self.class.references.include?(name)
 				raise "Reference must be a placeholder." unless ref.is_a?(Placeholder)
-				@references[name] = ref
+				value(:references)[name] = ref
 			end
 		
 		class << self

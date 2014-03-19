@@ -5,7 +5,7 @@ module XAS::Modules::MongoBackend
 		end
 		
 		scope :between do |first, last|
-			where :date => {}.merge(first ? { :$gte => first } : {}).merge(last ? { :$lt => last } : {})
+			first.nil? && last.nil? ? self : where(:date => {}.merge(first ? { :$gte => first } : {}).merge(last ? { :$lt => last } : {}))
 		end
 		
 		def initialize(backend, config)
@@ -58,11 +58,8 @@ module XAS::Modules::MongoBackend
 					:type => event.class.name,
 					:date => event.value(:date).get,
 					:created_at => event.value(:created_at).get,
-					:values => event.to_hash.except(:date, :created_at),
-					:references => Hash[event.references.map do |a|
-						raise "Reference '#{a[0]}' must be saved first." unless a[1].nil? || !a[1].id.nil?
-						[a[0], a[1].nil? ? nil : a[1].id]
-					end]
+					:values => event.to_hash.except(:references, :date, :created_at),
+					:references => event.references.to_hash
 				}
 			end
 			
