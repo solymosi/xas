@@ -8,7 +8,7 @@ module XAS
 				
 				def validate(value, collection)
 					errors = {}
-					field = Model::Field.new(:type => value.field.type)
+					field = Model::Field.new(value.field.options)
 					field.validators << validator
 					value.pairs.each do |k, v|
 						item = field.create_value
