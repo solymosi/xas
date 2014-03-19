@@ -46,7 +46,7 @@ module XAS
 			query
 		end
 		
-		def build(date = nil)
+		def build(date)
 			raise "A build is already running." if building?
 			return if valid_on?(date)
 			begin
@@ -64,7 +64,7 @@ module XAS
 			end
 		end
 		
-		def rebuild(date = nil)
+		def rebuild(date)
 			clear
 			build(date)
 		end
@@ -128,9 +128,6 @@ module XAS
 		end
 		
 		protected
-			def invalidate_reference_on(date)
-				item = at(date, false).ref(placeholder).first
-				
-			end
+		
 	end
 end
