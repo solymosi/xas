@@ -34,6 +34,7 @@ module XAS
 					raise "Error must be a symbol." unless error.is_a?(Symbol)
 					@errors ||= {}
 					@errors[error] = params
+					@errors
 				end
 				
 				def valid?
@@ -79,11 +80,11 @@ module XAS
 			
 			def valid?
 				@errors = {}
-				self.class.validators.each do |validator|
-					validator.validate self, nil
-				end
 				self.class.fields.each do |name, field|
 					value(name).valid?
+				end
+				self.class.validators.each do |validator|
+					validator.validate self, nil
 				end
 				errors.none?
 			end
