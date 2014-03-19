@@ -17,6 +17,10 @@ module XAS
 		
 		alias_method :eql?, :==
 		
+		def to_hash
+			id
+		end
+		
 		protected
 			def set_id(id)
 				@id = id
