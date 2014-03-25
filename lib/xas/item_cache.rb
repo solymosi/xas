@@ -52,12 +52,18 @@ module XAS
 			begin
 				@building = true
 				trigger "build.started", date
-				registry.sorted.between(valid_to, date).each do |event|
-					raise "Invalid event order." if !valid_to.nil? && valid_to > event.value(:date).get
-					trigger :build, event
-					event.apply self
+				context = Build.new self, registry.sorted.between(valid_to, date)
+				context.each do |date, event, action|
+					raise "Invalid event or action order." if !valid_to.nil? && valid_to > date
+					if action.nil?
+						trigger :build_event, event
+						event.apply context
+					else
+						trigger :build_action, event, action
+						event.instance_exec date, context, &action
+					end
+					set_valid_to date
 				end
-				set_valid_to date
 			ensure
 				@building = false
 				trigger "build.finished", date
@@ -127,7 +133,60 @@ module XAS
 			super || storage.respond_to?(method)
 		end
 		
-		protected
-		
+		class Build
+			attr_reader :cache, :query, :actions, :current_date, :current_event
+			
+			def initialize(cache, query)
+				@cache, @query = cache, query
+				@actions = {}
+			end
+			
+			def each
+				raise "This context is already being enumerated." unless current_date.nil?
+				e = Enumerator.new do |y|
+					event, cursor = nil, query.execute
+					while true
+						act_date = actions.keys.sort.first
+						action = act_date.nil? || actions[act_date].nil? ? nil : actions[act_date].first
+						event = cursor.next rescue nil if event.nil?
+						break if event.nil? && action.nil?
+						if !event.nil? && (action.nil? || event.value(:date).get <= act_date)
+							args = [event.value(:date).get, event, nil]
+							event = nil
+						elsif !action.nil? && (event.nil? || event.value(:date).get > act_date)
+							args = [act_date, action[:event], action[:action]]
+							actions[act_date].delete action
+							actions.delete(act_date) if actions[act_date].empty?
+						else
+							raise "Invalid state."
+						end
+						@current_date, @current_event = args[0], args[1]
+						yield *args
+					end
+				end
+				return e unless block_given?
+				e.each do |event, action|
+					yield event, action
+				end
+			ensure
+				@current_date = nil
+			end
+			
+			def at(date, &block)
+				return cache.at(date) unless block_given?
+				raise "Time required." unless date.is_a?(Time)
+				raise "The date of the deferred action must not precede the current build time." unless current_date.nil? || current_date <= date
+				actions[date] ||= []
+				actions[date] << { :event => current_event, :action => block }
+			end
+			
+			def method_missing(method, *args, &block)
+				cache.respond_to?(method) ? cache.send(method, *args, &block) : super
+			end
+			
+			def respond_to?(method)
+				super || cache.respond_to?(method)
+			end
+		end
 	end
 end
