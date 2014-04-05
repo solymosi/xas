@@ -5,7 +5,7 @@ module XAS::Modules::MongoBackend
 		end
 		
 		scope :between do |first, last|
-			first.nil? && last.nil? ? self : where(:date => {}.merge(first ? { :$gte => first } : {}).merge(last ? { :$lt => last } : {}))
+			first.nil? && last.nil? ? self : where(:date => {}.merge(first ? { :$gt => first } : {}).merge(last ? { :$lte => last } : {}))
 		end
 		
 		def initialize(backend, config)
