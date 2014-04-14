@@ -17,11 +17,19 @@ module XAS
 			Hash[values.map { |n, v| [n, v.to_hash] }]
 		end
 		
+		def to_data
+			Hash[values.map { |n, v| [n, v.to_data] }]
+		end
+		
 		def load(values)
 			raise "Hash required." unless values.is_a?(Hash)
 			clear
-			values.each do |name, val|
-				value(name).set val
+			values.deep_symbolize_keys.each do |name, data|
+				next unless self.class.has_field?(name)
+				val = value(name)
+				data = Placeholder.new(val.field.type, data) if !data.nil? && val.is_a?(ReferenceValue)
+				data = val.field.from_hash(data) if val.field.respond_to?(:from_hash)
+				val.set(data)
 			end
 			self
 		end
@@ -88,6 +96,10 @@ module XAS
 				return field.options[:group].merge_definition(&block) if has_field?(name) && field.is_a?(HashField) && field.options[:group].is_a?(GroupField)
 				group = GroupField.new(:definition => block)
 				field_hash name, group.model, options.merge(:group => group)
+			end
+		
+			def reference(name, klass, options = {})
+				field name, ReferenceField, options.reverse_merge(:type => klass)
 			end
 			
 			def from_hash(values)

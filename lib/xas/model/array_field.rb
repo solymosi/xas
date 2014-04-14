@@ -5,6 +5,10 @@ module XAS
 				super
 			end
 			
+			def from_hash(value)
+				type.respond_to?(:from_hash) ? value.map { |i| type.from_hash(i) } : value
+			end
+			
 			def create_value
 				ArrayValue.new self
 			end

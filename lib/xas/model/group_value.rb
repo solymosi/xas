@@ -18,6 +18,10 @@ module XAS
 				@data.to_hash
 			end
 			
+			def to_data
+				@data.to_data
+			end
+			
 			def valid?
 				@data.valid?
 			end
@@ -36,7 +40,6 @@ module XAS
 			
 			protected
 				def parse(value)
-					return field.model.from_hash(value) if value.is_a?(Hash)
 					raise "Collection value is not an instance of the collection field model." unless value.nil? || value.is_a?(field.model)
 					value
 				end

@@ -36,6 +36,10 @@ module XAS
 				Hash[get.map { |k, i| [k, i.respond_to?(:to_hash) ? i.to_hash : i] }]
 			end
 			
+			def to_data
+				Hash[get.map { |k, i| [k, i.respond_to?(:to_data) ? i.to_data : i] }]
+			end
+			
 			def pairs
 				each_pair
 			end

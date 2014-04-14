@@ -21,8 +21,16 @@ module XAS
 				get.respond_to?(:to_hash) ? get.to_hash : get
 			end
 			
+			def to_data
+				get.respond_to?(:to_data) ? get.to_data : get
+			end
+			
 			def nil?
-				get.nil?
+				@data.nil?
+			end
+			
+			def blank?
+				@data.blank?
 			end
 			
 			protected

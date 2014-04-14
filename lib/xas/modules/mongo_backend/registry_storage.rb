@@ -58,8 +58,7 @@ module XAS::Modules::MongoBackend
 					:type => event.class.name,
 					:date => event.value(:date).get,
 					:created_at => event.value(:created_at).get,
-					:values => event.to_hash.except(:references, :date, :created_at),
-					:references => event.references.to_hash
+					:values => event.to_hash.except(:date, :created_at)
 				}
 			end
 			
@@ -69,9 +68,6 @@ module XAS::Modules::MongoBackend
 				event.load data[:values]
 				event.value(:date).set data[:date]
 				event.value(:created_at).set data[:created_at]
-				data[:references].each do |name, id|
-					event.references.value(name).set XAS::Placeholder.new(event.class.references[name][:type], id)
-				end
 				event
 			end
 			
@@ -80,11 +76,6 @@ module XAS::Modules::MongoBackend
 					:_id => ph.id,
 					:type => ph.type.name
 				}
-			end
-			
-			def hydrate_placeholder(data)
-				data.deep_symbolize_keys!
-				XAS::Placeholder.new data[:type].constantize, data[:_id]
 			end
 	end
 end

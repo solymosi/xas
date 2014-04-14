@@ -28,6 +28,10 @@ module XAS
 				super || model.respond_to?(method)
 			end
 			
+			def from_hash(value)
+				model.from_hash(value)
+			end
+			
 			def create_value
 				GroupValue.new self
 			end
