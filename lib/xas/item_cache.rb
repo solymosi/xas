@@ -82,6 +82,7 @@ module XAS
 		
 		def create(placeholder, date)
 			raise "Date required." unless date.is_a?(Time)
+			placeholder = placeholder.data if placeholder.is_a?(Model::ReferenceValue)
 			raise "Placeholder required." unless placeholder.is_a?(Placeholder)
 			raise "Cannot create item for an unsaved placeholder." unless placeholder.saved?
 			raise "Item already exists or existed." if at(date, false).ref(placeholder).any? || before(date).ref(placeholder).any?
@@ -92,6 +93,7 @@ module XAS
 		
 		def get(placeholder, date)
 			raise "Date required." unless date.is_a?(Time)
+			placeholder = placeholder.data if placeholder.is_a?(Model::ReferenceValue)
 			raise "Placeholder required." unless placeholder.is_a?(Placeholder)
 			raise "Cannot retrieve item for an unsaved placeholder." unless placeholder.saved?
 			item = at(date, false).ref(placeholder).first
