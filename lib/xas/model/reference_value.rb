@@ -33,6 +33,7 @@ module XAS
 				def parse(value)
 					return nil if value.nil?
 					value = value.data if value.is_a?(ReferenceValue)
+					value = value.placeholder if value.is_a?(Item)
 					raise "Placeholder required." unless value.is_a?(Placeholder)
 					raise "Invalid reference type." unless value.type == field.type
 					value
