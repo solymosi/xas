@@ -21,10 +21,6 @@ module XAS
 			query
 		end
 		
-		def get_affected_events(event)
-			
-		end
-		
 		def new_id
 			storage.new_id
 		end

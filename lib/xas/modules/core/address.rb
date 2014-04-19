@@ -1,5 +1,5 @@
 module XAS::Modules::Core
-	class Address < Item
+	class Address < XAS::Item
 		field :country, String
 		validate :country, :presence
 		

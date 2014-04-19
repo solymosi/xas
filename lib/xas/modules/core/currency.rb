@@ -1,5 +1,5 @@
 module XAS::Modules::Core
-	class Currency < Item
+	class Currency < XAS::Item
 		field :name, String
 		validate :name, :presence
 		
