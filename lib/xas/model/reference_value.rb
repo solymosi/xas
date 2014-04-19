@@ -13,6 +13,10 @@ module XAS
 				@data = Placeholder.new(field.type)
 			end
 			
+			def fetch(cache, date)
+				cache.get self, date
+			end
+			
 			def method_missing(method, *args, &block)
 				@data.respond_to?(method) ? @data.send(method, *args, &block) : super
 			end
