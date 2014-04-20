@@ -7,10 +7,11 @@ module XAS::Modules::Core
 		field :tax_id, String
 		
 		def apply(cache)
-			p = super
-			p.short_name = short_name
-			p.tax_id = tax_id
-			cache.save p
+			super do |p|
+				p.short_name = short_name
+				p.tax_id = tax_id
+				yield p if block_given?
+			end
 		end
 	end
 end

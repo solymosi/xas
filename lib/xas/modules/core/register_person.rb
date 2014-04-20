@@ -9,7 +9,8 @@ module XAS::Modules::Core
 			p = cache.create person, date
 			p.name = name
 			p.address = address
-			p
+			yield p if block_given?
+			cache.save p
 		end
 	end
 end
