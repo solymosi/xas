@@ -1,4 +1,4 @@
-set :modules, [:core, :console, :mongo_backend]
+set :modules, [:core, :hun, :ifrs, :console, :mongo_backend]
 
 group :backend do
 	group :default do
