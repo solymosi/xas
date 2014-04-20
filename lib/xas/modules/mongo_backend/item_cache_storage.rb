@@ -19,6 +19,11 @@ module XAS::Modules::MongoBackend
 			where :_ref => placeholder.id
 		end
 		
+		scope :type do |klass|
+			raise "Item class required." unless klass.ancestors.include?(XAS::Item)
+			where :type => klass.name
+		end
+		
 		def initialize(backend, config)
 			super
 			set_config_defaults
@@ -74,7 +79,7 @@ module XAS::Modules::MongoBackend
 				{
 					:_id => item.id,
 					:_ref => item.placeholder.id,
-					:type => item.class.name,
+					:type => item.class.ancestors[0..(item.class.ancestors.index(XAS::Item)) - 1].map(&:name),
 					:from => item.value(:from).get,
 					:to => item.value(:to).get,
 					:values => item.to_hash.except(:from, :to)
@@ -83,7 +88,7 @@ module XAS::Modules::MongoBackend
 			
 			def hydrate_item(data)
 				data.deep_symbolize_keys!
-				item = data[:type].constantize.new XAS::Placeholder.new(data[:type].constantize, data[:_ref]), data[:_id]
+				item = data[:type][0].constantize.new XAS::Placeholder.new(data[:type][0].constantize, data[:_ref]), data[:_id]
 				item.load data[:values]
 				item.value(:from).set data[:from]
 				item.value(:to).set data[:to]
