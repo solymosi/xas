@@ -5,6 +5,8 @@ module XAS::Modules::Console
 		def run!
 			env = XAS::Environment
 			core = XAS::Modules::Core
+			hun = XAS::Modules::Hun
+			ifrs = XAS::Modules::Ifrs
 			reg = env.registry
 			cache = env.item_cache
 			
@@ -40,6 +42,22 @@ module XAS::Modules::Console
 			p.address = a.address
 			reg.save p
 			log "Created RegisterNaturalPerson event."
+			
+			log "Creating Hun::CreatePolicy event..."
+			hunp = hun::CreatePolicy.new
+			hunp.date = Time.utc(2014, 01, 01)
+			hunp.policy.build
+			hunp.book_currency = c.currency
+			reg.save hunp
+			log "Created Hun::CreatePolicy event."
+			
+			log "Creating Ifrs::CreatePolicy event..."
+			ifrsp = ifrs::CreatePolicy.new
+			ifrsp.date = Time.utc(2014, 01, 01)
+			ifrsp.policy.build
+			ifrsp.book_currency = c.currency
+			reg.save ifrsp
+			log "Created Ifrs::CreatePolicy event."
 		ensure
 			binding.pry
 		end
